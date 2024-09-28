@@ -11,6 +11,9 @@ public class OmniWheelTeleOp extends LinearOpMode {
     DcMotor rightFrontDrive = null;
     DcMotor rightBackDrive = null;
 
+    // Turn speed factor (0.5 means half speed for turning)
+    private static final double TURN_SPEED_FACTOR = 0.5;
+
     @Override
     public void runOpMode() {
         leftFrontDrive  = hardwareMap.get(DcMotor.class, "left_front_drive");
@@ -30,7 +33,7 @@ public class OmniWheelTeleOp extends LinearOpMode {
             double strafe = gamepad1.right_stick_x;  // Left/right
 
             // Use triggers for rotation
-            double rotate = gamepad1.right_trigger - gamepad1.left_trigger;
+            double rotate = (gamepad1.right_trigger - gamepad1.left_trigger) * TURN_SPEED_FACTOR;
 
             // Calculate power for each motor
             double leftFrontPower = -strafe + rotate;
@@ -47,7 +50,7 @@ public class OmniWheelTeleOp extends LinearOpMode {
                 rightFrontPower /= maxPower;
                 rightBackPower /= maxPower;
             }
-            //test
+
             // Set power to the motors
             leftFrontDrive.setPower(leftFrontPower);
             leftBackDrive.setPower(leftBackPower);
