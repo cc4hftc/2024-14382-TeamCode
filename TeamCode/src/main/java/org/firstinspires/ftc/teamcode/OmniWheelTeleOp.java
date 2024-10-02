@@ -11,45 +11,42 @@ public class OmniWheelTeleOp extends LinearOpMode {
     DcMotor rightFrontDrive = null;
     DcMotor rightBackDrive = null;
 
-    // Turn speed factor (0.5 means half speed for turning)
     private static final double TURN_SPEED_FACTOR = 0.5;
+    private static final double ACCELERATION_RATE = 0.01; // Change in power per update
+    private static final double strafe_speed = 0.5;
+    private double leftFrontPower = 0;
+    private double leftBackPower = 0;
+    private double rightFrontPower = 0;
+    private double rightBackPower = 0;
 
     @Override
     public void runOpMode() {
-        leftFrontDrive  = hardwareMap.get(DcMotor.class, "left_front_drive");
-        leftBackDrive   = hardwareMap.get(DcMotor.class, "left_back_drive");
+        leftFrontDrive = hardwareMap.get(DcMotor.class, "left_front_drive");
+        leftBackDrive = hardwareMap.get(DcMotor.class, "left_back_drive");
         rightFrontDrive = hardwareMap.get(DcMotor.class, "right_front_drive");
-        rightBackDrive  = hardwareMap.get(DcMotor.class, "right_back_drive");
+        rightBackDrive = hardwareMap.get(DcMotor.class, "right_back_drive");
 
-        // Optionally set motor directions if needed
         leftFrontDrive.setDirection(DcMotor.Direction.REVERSE);
         leftBackDrive.setDirection(DcMotor.Direction.REVERSE);
 
         waitForStart();
 
         while (opModeIsActive()) {
-            // Get joystick input for driving
             double drive = -gamepad1.left_stick_y;  // Forward/backward
-            double strafe = gamepad1.right_stick_x;  // Left/right
-
-            // Use triggers for rotation
+            double strafe = gamepad1.right_stick_x * strafe_speed;  // Left/right
             double rotate = (gamepad1.right_trigger - gamepad1.left_trigger) * TURN_SPEED_FACTOR;
 
-            // Calculate power for each motor
-            double leftFrontPower = -strafe + rotate;
-            double leftBackPower = drive + rotate;
-            double rightFrontPower = -strafe - rotate;
-            double rightBackPower = drive - rotate;
+            // Calculate target power for each motor
+            double targetLeftFrontPower = -strafe + rotate;
+            double targetLeftBackPower = drive + rotate;
+            double targetRightFrontPower = -strafe - rotate;
+            double targetRightBackPower = drive - rotate;
 
-            // Normalize the motor power values to ensure they stay within [-1, 1]
-            double maxPower = Math.max(Math.abs(leftFrontPower), Math.max(Math.abs(leftBackPower),
-                    Math.max(Math.abs(rightFrontPower), Math.abs(rightBackPower))));
-            if (maxPower > 1) {
-                leftFrontPower /= maxPower;
-                leftBackPower /= maxPower;
-                rightFrontPower /= maxPower;
-                rightBackPower /= maxPower;
-            }
+            // Ramp up the power for smoother acceleration
+            leftFrontPower = rampPower(leftFrontPower, targetLeftFrontPower);
+            leftBackPower = rampPower(leftBackPower, targetLeftBackPower);
+            rightFrontPower = rampPower(rightFrontPower, targetRightFrontPower);
+            rightBackPower = rampPower(rightBackPower, targetRightBackPower);
 
             // Set power to the motors
             leftFrontDrive.setPower(leftFrontPower);
@@ -57,5 +54,20 @@ public class OmniWheelTeleOp extends LinearOpMode {
             rightFrontDrive.setPower(rightFrontPower);
             rightBackDrive.setPower(rightBackPower);
         }
+    }
+
+    private double rampPower(double currentPower, double targetPower) {
+        if (currentPower < targetPower) {
+            currentPower += ACCELERATION_RATE;
+            if (currentPower > targetPower) {
+                currentPower = targetPower;
+            }
+        } else if (currentPower > targetPower) {
+            currentPower -= ACCELERATION_RATE;
+            if (currentPower < targetPower) {
+                currentPower = targetPower;
+            }
+        }
+        return currentPower;
     }
 }
