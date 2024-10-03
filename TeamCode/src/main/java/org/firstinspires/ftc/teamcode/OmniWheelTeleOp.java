@@ -5,7 +5,6 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 @TeleOp
-
 public class OmniWheelTeleOp extends LinearOpMode {
     DcMotor leftFrontDrive = null;
     DcMotor leftBackDrive = null;
@@ -15,6 +14,7 @@ public class OmniWheelTeleOp extends LinearOpMode {
     private static final double TURN_SPEED_FACTOR = 0.5;
     private static final double ACCELERATION_RATE = 0.01; // Change in power per update
     private static final double strafe_speed = 0.5;
+    private static final double SPEED_MULTIPLIER = 0.5; // Adjust this value to change speed
     private double leftFrontPower = 0;
     private double leftBackPower = 0;
     private double rightFrontPower = 0;
@@ -33,9 +33,9 @@ public class OmniWheelTeleOp extends LinearOpMode {
         waitForStart();
 
         while (opModeIsActive()) {
-            double drive = -gamepad1.left_stick_y;  // Forward/backward
-            double strafe = gamepad1.right_stick_x * strafe_speed;  // Left/right
-            double rotate = (gamepad1.right_trigger - gamepad1.left_trigger) * TURN_SPEED_FACTOR;
+            double drive = -gamepad1.left_stick_y * SPEED_MULTIPLIER;  // Forward/backward
+            double strafe = gamepad1.right_stick_x * strafe_speed * SPEED_MULTIPLIER;  // Left/right
+            double rotate = (gamepad1.right_trigger - gamepad1.left_trigger) * TURN_SPEED_FACTOR * SPEED_MULTIPLIER;
 
             // Calculate target power for each motor
             double targetLeftFrontPower = -strafe + rotate;
