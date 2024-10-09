@@ -16,7 +16,6 @@ public class ArmControlTeleOp extends LinearOpMode {
 
         // Optionally set motor direction if needed
         armMotor.setDirection(DcMotor.Direction.FORWARD); // Change if necessary
-        
         waitForStart();
 
         while (opModeIsActive()) {
