@@ -17,7 +17,7 @@ public class OmniWheelTeleOp extends LinearOpMode {
     DcMotor otherArmMotor = null;
 
     // Drive control constants
-    private static final double TURN_SPEED_FACTOR = 0.6;
+    private static final double TURN_SPEED_FACTOR = 0.45;
     private static final double ACCELERATION_RATE = 0.08; // Change in power per update
     private static final double strafe_speed = 0.8;
     private static final double SPEED_MULTIPLIER = 1; // Adjust this value to change speed
