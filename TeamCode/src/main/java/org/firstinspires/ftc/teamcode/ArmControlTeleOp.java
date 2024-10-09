@@ -7,13 +7,16 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 @TeleOp
 public class ArmControlTeleOp extends LinearOpMode {
     DcMotor armMotor = null;
+    DcMotor other_ArmMotor = null;
 
     @Override
     public void runOpMode() {
         armMotor = hardwareMap.get(DcMotor.class, "arm_motor");
+        other_ArmMotor = hardwareMap.get(DcMotor.class, "arm_motor2");
 
         // Optionally set motor direction if needed
         armMotor.setDirection(DcMotor.Direction.FORWARD); // Change if necessary
+        
         waitForStart();
 
         while (opModeIsActive()) {
