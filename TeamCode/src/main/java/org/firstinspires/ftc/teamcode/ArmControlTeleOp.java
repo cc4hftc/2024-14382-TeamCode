@@ -10,8 +10,8 @@ public class ArmControlTeleOp extends LinearOpMode {
     DcMotor other_ArmMotor = null;
 
     // Encoder positions corresponding to 0 and 180 degrees
-    private static final int ARM_MIN_POSITION = -1000;  // Adjust this based on actual arm configuration
-    private static final int ARM_MAX_POSITION = 1000;  // Adjust this based on actual arm configuration
+    private static final int ARM_MIN_POSITION = -0;  // Adjust this based on actual arm configuration
+    private static final int ARM_MAX_POSITION = 180;  // Adjust this based on actual arm configuration
 
     @Override
     public void runOpMode() {
