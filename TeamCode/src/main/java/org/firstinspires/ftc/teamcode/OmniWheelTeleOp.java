@@ -11,10 +11,10 @@ public class OmniWheelTeleOp extends LinearOpMode {
     DcMotor rightFrontDrive = null;
     DcMotor rightBackDrive = null;
 
-    private static final double TURN_SPEED_FACTOR = 0.5;
-    private static final double ACCELERATION_RATE = 0.001; // Change in power per update
-    private static final double strafe_speed = 0.6;
-    private static final double SPEED_MULTIPLIER = 0.8; // Adjust this value to change speed
+    private static final double TURN_SPEED_FACTOR = 0.8;
+    private static final double ACCELERATION_RATE = 0.008; // Change in power per update
+    private static final double strafe_speed = 0.8;
+    private static final double SPEED_MULTIPLIER = 1; // Adjust this value to change speed
     private double leftFrontPower = 0;
     private double leftBackPower = 0;
     private double rightFrontPower = 0;
