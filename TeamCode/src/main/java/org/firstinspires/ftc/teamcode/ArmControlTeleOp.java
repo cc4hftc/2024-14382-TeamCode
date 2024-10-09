@@ -10,8 +10,8 @@ public class ArmControlTeleOp extends LinearOpMode {
     DcMotor other_ArmMotor = null;
 
     // Encoder positions corresponding to 0 and 180 degrees
-    private static final int ARM_MIN_POSITION = 0;  // Adjust this based on actual arm configuration
-    private static final int ARM_MAX_POSITION = 180;  // Adjust this based on actual arm configuration
+    private static final int ARM_MIN_POSITION = -1000;  // Adjust this based on actual arm configuration
+    private static final int ARM_MAX_POSITION = 1000;  // Adjust this based on actual arm configuration
 
     @Override
     public void runOpMode() {
@@ -56,14 +56,14 @@ public class ArmControlTeleOp extends LinearOpMode {
             if (gamepad2.a) {
                 // Ensure we don't exceed the max position
                 if (currentPosition < ARM_MAX_POSITION) {
-                    armMotor.setPower(2); // Move arm up
-                    other_ArmMotor.setPower(2); // Move other arm up
+                    armMotor.setPower(10); // Move arm up
+                    other_ArmMotor.setPower(10); // Move other arm up
                 }
             } else if (gamepad2.b) {
                 // Ensure we don't go below the min position
                 if (currentPosition > ARM_MIN_POSITION) {
-                    armMotor.setPower(-2); // Move arm down
-                    other_ArmMotor.setPower(-2); // Move other arm down
+                    armMotor.setPower(-10); // Move arm down
+                    other_ArmMotor.setPower(-10); // Move other arm down
                 }
             } else {
                 armMotor.setPower(0); // Stop the arm
