@@ -14,7 +14,6 @@ public class ArmControlTeleOp extends LinearOpMode {
         // Initialize both motors
         armMotor = hardwareMap.get(DcMotor.class, "arm_motor");
         other_ArmMotor = hardwareMap.get(DcMotor.class, "arm_motor2");
-
         // Optionally set motor direction if needed
         armMotor.setDirection(DcMotor.Direction.FORWARD); // Change if necessary
         other_ArmMotor.setDirection(DcMotor.Direction.REVERSE); // Change if needed
