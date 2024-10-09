@@ -56,14 +56,14 @@ public class ArmControlTeleOp extends LinearOpMode {
             if (gamepad2.a) {
                 // Ensure we don't exceed the max position
                 if (currentPosition < ARM_MAX_POSITION) {
-                    armMotor.setPower(0.5); // Move arm up
-                    other_ArmMotor.setPower(0.5); // Move other arm up
+                    armMotor.setPower(2); // Move arm up
+                    other_ArmMotor.setPower(2); // Move other arm up
                 }
             } else if (gamepad2.b) {
                 // Ensure we don't go below the min position
                 if (currentPosition > ARM_MIN_POSITION) {
-                    armMotor.setPower(-0.5); // Move arm down
-                    other_ArmMotor.setPower(-0.5); // Move other arm down
+                    armMotor.setPower(-2); // Move arm down
+                    other_ArmMotor.setPower(-2); // Move other arm down
                 }
             } else {
                 armMotor.setPower(0); // Stop the arm
