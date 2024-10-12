@@ -122,7 +122,7 @@ public class OmniWheelTeleOp extends LinearOpMode {
 
                 //Wrist movement for claw
             if  (gamepad2.left_bumper) {
-                claw.setPosition(90);
+                claw.setPosition(15);
             }    else if (gamepad2.right_bumper) {
                 claw.setPosition(0);
             }
