@@ -16,7 +16,7 @@ public class OmniWheelTeleOp extends LinearOpMode {
     // Arm motors
     DcMotor armMotor = null;
     DcMotor otherArmMotor = null;
-    Servo wrist = null;
+    Servo claw = null;
     // Drive control constants
     private static final double TURN_SPEED_FACTOR = 0.45;
     private static final double ACCELERATION_RATE = 0.08; // Change in power per update
@@ -44,7 +44,7 @@ public class OmniWheelTeleOp extends LinearOpMode {
         // Initialize arm motors
         armMotor = hardwareMap.get(DcMotor.class, "arm_motor");
         otherArmMotor = hardwareMap.get(DcMotor.class, "arm_motor2");
-        wrist = hardwareMap.get(Servo.class, "wrist_servo");
+        claw = hardwareMap.get(Servo.class, "clawServo");
 
 
         // Set drive motor directions
@@ -54,7 +54,7 @@ public class OmniWheelTeleOp extends LinearOpMode {
         // Set arm motor directions
         armMotor.setDirection(DcMotor.Direction.FORWARD);
         otherArmMotor.setDirection(DcMotor.Direction.REVERSE);
-        wrist.setDirection(Servo.Direction.FORWARD);
+        claw.setDirection(Servo.Direction.FORWARD);
 
         // Set motor modes
         armMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -122,9 +122,9 @@ public class OmniWheelTeleOp extends LinearOpMode {
 
                 //Wrist movement for claw
             if  (gamepad2.left_bumper) {
-                wrist.setPosition(90);
+                claw.setPosition(90);
             }    else if (gamepad2.right_bumper) {
-                wrist.setPosition(0);
+                claw.setPosition(0);
             }
 
 
