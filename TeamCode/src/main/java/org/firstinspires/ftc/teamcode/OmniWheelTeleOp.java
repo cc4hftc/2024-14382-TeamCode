@@ -16,7 +16,8 @@ public class OmniWheelTeleOp extends LinearOpMode {
     // Arm motors
     DcMotor armMotor = null;
     DcMotor otherArmMotor = null;
-    Servo claw = null;
+    Servo claw = null; // Claw servo reference
+
     // Drive control constants
     private static final double TURN_SPEED_FACTOR = 0.45;
     private static final double ACCELERATION_RATE = 0.08; // Change in power per update
@@ -33,6 +34,9 @@ public class OmniWheelTeleOp extends LinearOpMode {
     private double rightFrontPower = 0;
     private double rightBackPower = 0;
 
+    // Claw control
+    private double currentClawPosition = 0.5;  // Initial position of the claw (in the middle)
+
     @Override
     public void runOpMode() {
         // Initialize drive motors
@@ -44,8 +48,9 @@ public class OmniWheelTeleOp extends LinearOpMode {
         // Initialize arm motors
         armMotor = hardwareMap.get(DcMotor.class, "arm_motor");
         otherArmMotor = hardwareMap.get(DcMotor.class, "arm_motor2");
-        claw = hardwareMap.get(Servo.class, "clawServo");
 
+        // Initialize the claw servo (make sure the name matches the configuration)
+        claw = hardwareMap.get(Servo.class, "clawServo"); // Make sure the name here matches the one in configuration
 
         // Set drive motor directions
         leftFrontDrive.setDirection(DcMotor.Direction.REVERSE);
@@ -120,13 +125,24 @@ public class OmniWheelTeleOp extends LinearOpMode {
                 otherArmMotor.setPower(0); // Stop the other arm
             }
 
-                //Wrist movement for claw
-            if  (gamepad2.left_bumper) {
-                claw.setPosition(15);
-            }    else if (gamepad2.right_bumper) {
-                claw.setPosition(0);
+            // Wrist movement for claw with 15-degree movement limitation
+            if (gamepad2.left_bumper) {
+                // Rotate claw clockwise by 15 degrees (limit to 0 to 1 range)
+                double newPosition = currentClawPosition + (1.0 / 20.0);  //servo precision
+                if (newPosition > 1.0) {
+                    newPosition = 1.0;  // Ensure the position doesn't exceed the maximum (1)
+                }
+                currentClawPosition = newPosition;
+                claw.setPosition(currentClawPosition);
+            } else if (gamepad2.right_bumper) {
+                // Rotate claw counterclockwise by 15 degrees (limit to 0 to 1 range)
+                double newPosition = currentClawPosition - (1.0 / 20.0);  //servo precision
+                if (newPosition < 0.75) {
+                    newPosition = 0.75;  // Ensure the position doesn't fall below the minimum (0)
+                }
+                currentClawPosition = newPosition;
+                claw.setPosition(currentClawPosition);
             }
-
 
             // Optional small delay to prevent rapid updates (gamepad2)
             sleep(50);
