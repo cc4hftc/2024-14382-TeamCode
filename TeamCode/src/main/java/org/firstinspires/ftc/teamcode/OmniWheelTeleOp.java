@@ -137,8 +137,8 @@ public class OmniWheelTeleOp extends LinearOpMode {
             } else if (gamepad2.right_bumper) {
                 // Rotate claw counterclockwise by 15 degrees (limit to 0 to 1 range)
                 double newPosition = currentClawPosition - (1.0 / 20.0);  //servo precision
-                if (newPosition < 0.8) {
-                    newPosition = 0.8;  // Ensure the position doesn't fall below the minimum (0)
+                if (newPosition < 0.9) {
+                    newPosition = 0.9;  // Ensure the position doesn't fall below the minimum (0)
                 }
                 currentClawPosition = newPosition;
                 claw.setPosition(currentClawPosition);
