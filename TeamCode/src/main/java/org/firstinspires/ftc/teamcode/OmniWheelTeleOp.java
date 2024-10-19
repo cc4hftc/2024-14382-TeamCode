@@ -147,9 +147,6 @@ public class OmniWheelTeleOp extends LinearOpMode {
                 claw.setPosition(currentClawPosition);
             }
 
-            // Optional small delay to prevent rapid updates (gamepad2)
-//            sleep(50);
-
             telemetry.update();
         }
     }
