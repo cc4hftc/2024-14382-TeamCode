@@ -68,6 +68,8 @@ public class OmniWheelTeleOp extends LinearOpMode {
         waitForStart();
 
         while (opModeIsActive()) {
+
+            telemetry.clearAll();
             // Omni-wheel drive control (gamepad1)
             double drive = -gamepad1.left_stick_y * SPEED_MULTIPLIER;  // Forward/backward
             double strafe = gamepad1.right_stick_x * strafe_speed * SPEED_MULTIPLIER;  // Left/right
@@ -99,33 +101,15 @@ public class OmniWheelTeleOp extends LinearOpMode {
             if (armPower > 0 && currentPosition < ARM_MAX_POSITION) {
                 armMotor.setPower(armPower);
                 otherArmMotor.setPower(armPower);
-                telemetry.addData("Motor speed in part 1", armPower);
+                telemetry.addData("Arm Power", armPower);
             } else if (armPower < 0 && currentPosition > ARM_MIN_POSITION) {
                 armMotor.setPower(armPower);
                 otherArmMotor.setPower(armPower);
-                telemetry.addData("Motor speed in part 2", armPower);
+                telemetry.addData("Arm Power", armPower);
             } else {
                 armMotor.setPower(0);
                 otherArmMotor.setPower(0);
-                telemetry.addData("Motor speed in part 3", armPower);
-            }
-
-            // Button-based arm control (gamepad2)
-            if (gamepad2.a) {
-                // Move arm up if not at max position
-                if (currentPosition < ARM_MAX_POSITION) {
-                    armMotor.setPower(1);
-                    otherArmMotor.setPower(1);
-                }
-            } else if (gamepad2.b) {
-                // Move arm down if not at min position
-                if (currentPosition > ARM_MIN_POSITION) {
-                    armMotor.setPower(-1);
-                    otherArmMotor.setPower(-1);
-                }
-            } else {
-                armMotor.setPower(0); // Stop the arm
-                otherArmMotor.setPower(0); // Stop the other arm
+                telemetry.addData("Arm Power", armPower);
             }
 
             // Wrist movement for claw with 15-degree movement limitation
