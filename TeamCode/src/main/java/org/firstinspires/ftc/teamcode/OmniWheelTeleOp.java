@@ -164,6 +164,7 @@ public class OmniWheelTeleOp extends LinearOpMode {
                 currentPower = targetPower;
             }
         }
+
         return currentPower;
     }
 }
