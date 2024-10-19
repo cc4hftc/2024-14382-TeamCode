@@ -99,12 +99,15 @@ public class OmniWheelTeleOp extends LinearOpMode {
             if (armPower > 0 && currentPosition < ARM_MAX_POSITION) {
                 armMotor.setPower(armPower);
                 otherArmMotor.setPower(armPower);
+                telemetry.addData("Motor speed in part 1", armPower);
             } else if (armPower < 0 && currentPosition > ARM_MIN_POSITION) {
                 armMotor.setPower(armPower);
                 otherArmMotor.setPower(armPower);
+                telemetry.addData("Motor speed in part 2", armPower);
             } else {
                 armMotor.setPower(0);
                 otherArmMotor.setPower(0);
+                telemetry.addData("Motor speed in part 3", armPower);
             }
 
             // Button-based arm control (gamepad2)
@@ -145,7 +148,9 @@ public class OmniWheelTeleOp extends LinearOpMode {
             }
 
             // Optional small delay to prevent rapid updates (gamepad2)
-            sleep(50);
+//            sleep(50);
+
+            telemetry.update();
         }
     }
 
