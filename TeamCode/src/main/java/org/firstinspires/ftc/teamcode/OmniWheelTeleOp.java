@@ -101,15 +101,12 @@ public class OmniWheelTeleOp extends LinearOpMode {
             if (armPower > 0 && currentPosition < ARM_MAX_POSITION) {
                 armMotor.setPower(armPower);
                 otherArmMotor.setPower(armPower);
-                telemetry.addData("Arm Power", armPower);
             } else if (armPower < 0 && currentPosition > ARM_MIN_POSITION) {
                 armMotor.setPower(armPower);
                 otherArmMotor.setPower(armPower);
-                telemetry.addData("Arm Power", armPower);
             } else {
                 armMotor.setPower(0);
                 otherArmMotor.setPower(0);
-                telemetry.addData("Arm Power", armPower);
             }
 
             // Wrist movement for claw with 15-degree movement limitation
@@ -131,6 +128,13 @@ public class OmniWheelTeleOp extends LinearOpMode {
                 claw.setPosition(currentClawPosition);
             }
 
+            //Debug stuffs
+            telemetry.addData("Arm Power", armPower);
+            telemetry.addData("Claw Pos.", currentClawPosition);
+            telemetry.addData("Front Power", leftFrontPower);
+            telemetry.addData("Back Power", rightFrontPower);
+            telemetry.addData("Left Power", leftBackPower);
+            telemetry.addData("Right Power", rightBackPower);
             telemetry.update();
         }
     }
