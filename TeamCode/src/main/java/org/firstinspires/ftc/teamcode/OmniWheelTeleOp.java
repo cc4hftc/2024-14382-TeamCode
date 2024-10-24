@@ -25,8 +25,8 @@ public class OmniWheelTeleOp extends LinearOpMode {
     private static final double SPEED_MULTIPLIER = 1; // Adjust this value to change speed
 
     // Arm control constants
-    private static final int ARM_MIN_POSITION = 0;  // Adjust based on actual arm configuration
-    private static final int ARM_MAX_POSITION = 180;  // Adjust based on actual arm configuration
+    private static final int ARM_MIN_POSITION = 2000;  // Adjust based on actual arm configuration
+    private static final int ARM_MAX_POSITION = 2000;  // Adjust based on actual arm configuration
 
     // Power variables for the drive system
     private double leftFrontPower = 0;
@@ -98,15 +98,15 @@ public class OmniWheelTeleOp extends LinearOpMode {
             int currentPosition = armMotor.getCurrentPosition();
 
             // Move the arm based on trigger input with position limits
-            if (armPower > 0 && currentPosition < ARM_MAX_POSITION) {
-                armMotor.setPower(armPower);
-                otherArmMotor.setPower(armPower);
-            } else if (armPower < 0 && currentPosition > ARM_MIN_POSITION) {
-                armMotor.setPower(armPower);
-                otherArmMotor.setPower(armPower);
+            if (armPower > 0) {
+                armMotor.setPower(-0.005); //when added: -0.5; old: 0.005
+                otherArmMotor.setPower(-0.005); //when added: -0.5 old: 0.005
+            } else if (armPower < 0) {
+                armMotor.setPower(armPower/4);
+                otherArmMotor.setPower(armPower/4);
             } else {
-                armMotor.setPower(0);
-                otherArmMotor.setPower(0);
+                armMotor.setPower(-0.1);
+                otherArmMotor.setPower(-0.1);
             }
 
             // Wrist movement for claw with 15-degree movement limitation
