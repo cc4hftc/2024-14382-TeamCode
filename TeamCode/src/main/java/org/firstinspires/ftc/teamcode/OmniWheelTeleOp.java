@@ -99,8 +99,8 @@ public class OmniWheelTeleOp extends LinearOpMode {
 
             // Move the arm based on trigger input with position limits
             if (armPower > 0) {
-                armMotor.setPower(-0.005); //when added: -0.5; old: 0.005
-                otherArmMotor.setPower(-0.005); //when added: -0.5 old: 0.005
+                armMotor.setPower((armPower/4)*-1); //when added: -0.5; old: 0.005
+                otherArmMotor.setPower((armPower/4)*-1); //when added: -0.5 old: 0.005
             } else if (armPower < 0) {
                 armMotor.setPower(armPower/4);
                 otherArmMotor.setPower(armPower/4);
@@ -109,6 +109,10 @@ public class OmniWheelTeleOp extends LinearOpMode {
                 otherArmMotor.setPower(-0.1);
             }
 
+            if (currentPosition>180) {
+                armMotor.setPower(0);
+                otherArmMotor.setPower(0);
+            }
             // Wrist movement for claw with 15-degree movement limitation
             if (gamepad2.left_bumper) {
                 // Rotate claw clockwise by 15 degrees (limit to 0 to 1 range)
