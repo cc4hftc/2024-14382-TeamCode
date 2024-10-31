@@ -99,8 +99,8 @@ public class OmniWheelTeleOp extends LinearOpMode {
 
             // Move the arm based on trigger input with position limits
             if (armPower > 0) {
-                armMotor.setPower((armPower/4)*-1); //when added: -0.5; old: 0.005
-                otherArmMotor.setPower((armPower/4)*-1); //when added: -0.5 old: 0.005
+                armMotor.setPower(-0.008); //when added: -0.5
+                otherArmMotor.setPower(-0.008); //when added: -0.5
             } else if (armPower < 0) {
                 armMotor.setPower(armPower/4);
                 otherArmMotor.setPower(armPower/4);
