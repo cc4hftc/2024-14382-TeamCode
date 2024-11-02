@@ -131,10 +131,13 @@ public class WMtest extends LinearOpMode {
             }
 
             //Debug stuffs
-            telemetry.addData("Current Position", ArmCurrentPosition);
-            telemetry.addData("Target Position", ArmTargetPos);
-            telemetry.addData("Resistance Power", ArmResistancePower);
-            telemetry.addData("Claw Pos.", currentClawPosition);
+            telemetry.addData("Arm Data:",3);
+            telemetry.addData("Current Arm Pos", ArmCurrentPosition);
+            telemetry.addData("Target Arm Pos", ArmTargetPos);
+            telemetry.addData("ArmResistancePower", ArmResistancePower);
+            telemetry.addData("Claw Data:",1);
+            telemetry.addData("Claw Pos", currentClawPosition);
+            telemetry.addData("Chassis",4);
             telemetry.addData("Front Power", leftFrontPower);
             telemetry.addData("Back Power", rightFrontPower);
             telemetry.addData("Left Power", leftBackPower);
