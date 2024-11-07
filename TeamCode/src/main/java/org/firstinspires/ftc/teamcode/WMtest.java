@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
 @TeleOp
@@ -17,6 +18,7 @@ public class WMtest extends LinearOpMode {
     DcMotor armMotor = null;
     DcMotor otherArmMotor = null;
     Servo claw = null; // Claw servo reference
+    Servo wrist = null;
 
     // Drive control constants
     private static final double TURN_SPEED_FACTOR = 0.45;
@@ -26,16 +28,13 @@ public class WMtest extends LinearOpMode {
 
     // Arm control constants
     private static final int ARM_MIN_POSITION = 2000;  // Adjust based on actual arm configuration
-    private static final int ARM_MAX_POSITION = 2000;  // Adjust based on actual arm configuration
+    private static final int ARM_MAX_POSITION = 2000;// Adjust based on actual arm configuration
 
     // Power variables for the drive system
     private double leftFrontPower = 0;
     private double leftBackPower = 0;
     private double rightFrontPower = 0;
     private double rightBackPower = 0;
-
-    // Claw control
-    private double currentClawPosition = 0.5;  // Initial position of the claw (in the middle)
 
     @Override
     public void runOpMode() {
@@ -51,6 +50,7 @@ public class WMtest extends LinearOpMode {
 
         // Initialize the claw servo (make sure the name matches the configuration)
         claw = hardwareMap.get(Servo.class, "clawServo"); // Make sure the name here matches the one in configuration
+        wrist = hardwareMap.get(Servo.class, "wristServo");
 
         // Set drive motor directions
         leftFrontDrive.setDirection(DcMotor.Direction.REVERSE);
@@ -96,38 +96,33 @@ public class WMtest extends LinearOpMode {
 
             // Get the current position of the motor
             int ArmCurrentPosition = armMotor.getCurrentPosition();
-
-            // Calculate the error from the target position
             int ArmTargetPos = 0;
             int ArmError = ArmTargetPos - ArmCurrentPosition;
 
-            // Calculate the power to apply to the motor
             double kP = 0.1;
             double ArmResistancePower = ArmError * kP;
 
-            // Clamp the power to [-1, 1]
             ArmResistancePower = Math.max(-1, Math.min(1, ArmResistancePower));
-
-            // Set the motor power
             armMotor.setPower(ArmResistancePower);
 
-            // Wrist movement for claw with 15-degree movement limitation
-            if (gamepad2.left_bumper) {
-                // Rotate claw clockwise by 15 degrees (limit to 0 to 1 range)
-                double newPosition = currentClawPosition + (1.0 / 20.0);  //servo precision
-                if (newPosition > 0.6) {
-                    newPosition = 0.6;  // Ensure the position doesn't exceed the maximum (1)
-                }
-                currentClawPosition = newPosition;
-                claw.setPosition(currentClawPosition);
-            } else if (gamepad2.right_bumper) {
-                // Rotate claw counterclockwise by 15 degrees (limit to 0 to 1 range)
-                double newPosition = currentClawPosition - (1.0 / 20.0);  //servo precision
-                if (newPosition < 0.8) {
-                    newPosition = 0.8;  // Ensure the position doesn't fall below the minimum (0)
-                }
-                currentClawPosition = newPosition;
-                claw.setPosition(currentClawPosition);
+            ArmTargetPos = (int) (ArmTargetPos+gamepad2.left_stick_y);
+
+
+            double newWrist;
+            newWrist = (int) (ArmTargetPos+gamepad2.left_stick_y);
+            wrist.setPosition(newWrist);
+
+            int clawON = -1;
+            double newClaw = 0;
+            claw.setPosition(newClaw);
+            if (gamepad2.left_bumper || gamepad2.right_bumper) {
+                clawON = (clawON *-1);
+            }
+
+            if (clawON == -1) {
+                newClaw = 0;
+            } else {
+                newClaw = 150;
             }
 
             //Debug stuffs
@@ -135,8 +130,9 @@ public class WMtest extends LinearOpMode {
             telemetry.addData("Current Arm Pos", ArmCurrentPosition);
             telemetry.addData("Target Arm Pos", ArmTargetPos);
             telemetry.addData("ArmResistancePower", ArmResistancePower);
-            telemetry.addData("Claw Data:",1);
-            telemetry.addData("Claw Pos", currentClawPosition);
+            telemetry.addData("Grabby Data:",2);
+            telemetry.addData("Claw Pos", newClaw);
+            telemetry.addData("Wrist Pos", newWrist);
             telemetry.addData("Chassis",4);
             telemetry.addData("Front Power", leftFrontPower);
             telemetry.addData("Back Power", rightFrontPower);
