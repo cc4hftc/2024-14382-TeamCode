@@ -3,10 +3,11 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+//import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
 @TeleOp
-public class OmniWheelTeleOp extends LinearOpMode {
+class OmniWheelTeleOP extends LinearOpMode {
     // Drive motors
     DcMotor leftFrontDrive = null;
     DcMotor leftBackDrive = null;
@@ -17,6 +18,7 @@ public class OmniWheelTeleOp extends LinearOpMode {
     DcMotor armMotor = null;
     DcMotor otherArmMotor = null;
     Servo claw = null; // Claw servo reference
+    Servo wrist = null;
 
     // Drive control constants
     private static final double TURN_SPEED_FACTOR = 0.45;
@@ -26,16 +28,13 @@ public class OmniWheelTeleOp extends LinearOpMode {
 
     // Arm control constants
     private static final int ARM_MIN_POSITION = 2000;  // Adjust based on actual arm configuration
-    private static final int ARM_MAX_POSITION = 2000;  // Adjust based on actual arm configuration
+    private static final int ARM_MAX_POSITION = 2000;// Adjust based on actual arm configuration
 
     // Power variables for the drive system
     private double leftFrontPower = 0;
     private double leftBackPower = 0;
     private double rightFrontPower = 0;
     private double rightBackPower = 0;
-
-    // Claw control
-    private double currentClawPosition = 0.5;  // Initial position of the claw (in the middle)
 
     @Override
     public void runOpMode() {
@@ -51,6 +50,7 @@ public class OmniWheelTeleOp extends LinearOpMode {
 
         // Initialize the claw servo (make sure the name matches the configuration)
         claw = hardwareMap.get(Servo.class, "clawServo"); // Make sure the name here matches the one in configuration
+        wrist = hardwareMap.get(Servo.class, "wristServo");
 
         // Set drive motor directions
         leftFrontDrive.setDirection(DcMotor.Direction.REVERSE);
@@ -70,6 +70,8 @@ public class OmniWheelTeleOp extends LinearOpMode {
         while (opModeIsActive()) {
 
             telemetry.clearAll();
+
+            //MOVEMENT CODE//MOVEMENT CODE//MOVEMENT CODE//MOVEMENT CODE//MOVEMENT CODE//
             // Omni-wheel drive control (gamepad1)
             double drive = -gamepad1.left_stick_y * SPEED_MULTIPLIER;  // Forward/backward
             double strafe = gamepad1.right_stick_x * strafe_speed * SPEED_MULTIPLIER;  // Left/right
@@ -93,48 +95,48 @@ public class OmniWheelTeleOp extends LinearOpMode {
             rightFrontDrive.setPower(rightFrontPower);
             rightBackDrive.setPower(rightBackPower);
 
-            // Arm control (gamepad2)
-            double armPower = gamepad2.right_trigger - gamepad2.left_trigger;
-            int currentPosition = armMotor.getCurrentPosition();
 
-            // Move the arm based on trigger input with position limits
-            if (armPower > 0) {
-                armMotor.setPower(-0.008); //when added: -0.5
-                otherArmMotor.setPower(-0.008); //when added: -0.5
-            } else if (armPower < 0) {
-                armMotor.setPower(armPower/4);
-                otherArmMotor.setPower(armPower/4);
+            //ARM CODE//ARM CODE//ARM CODE//ARM CODE//ARM CODE//ARM CODE//ARM CODE//ARM CODE//
+            int ArmCurrentPosition = armMotor.getCurrentPosition();
+            int ArmTargetPos = 0;
+            int ArmError = ArmTargetPos - ArmCurrentPosition;
+
+            double kP = 0.1;
+            double ArmResistancePower = ArmError * kP;
+
+            ArmResistancePower = Math.max(-1, Math.min(1, ArmResistancePower));
+            armMotor.setPower(ArmResistancePower);
+
+            ArmTargetPos = (int) (ArmTargetPos+gamepad2.left_stick_y);
+
+            //WRIST CODE//WRIST CODE//WRIST CODE//WRIST CODE//WRIST CODE//WRIST CODE//WRIST CODE//
+            double newWrist;
+            newWrist = (int) (ArmTargetPos+gamepad2.left_stick_y);
+            wrist.setPosition(newWrist);
+
+            //CLAW CODE//CLAW CODE//CLAW CODE//CLAW CODE//CLAW CODE//CLAW CODE//CLAW CODE//
+            int clawON = -1;
+            double newClaw = 0;
+            claw.setPosition(newClaw);
+            if (gamepad2.left_bumper || gamepad2.right_bumper) {
+                clawON = (clawON *-1);
+            }
+
+            if (clawON == -1) {
+                newClaw = 180; //0
             } else {
-                armMotor.setPower(-0.1);
-                otherArmMotor.setPower(-0.1);
+                newClaw = 120; //150
             }
 
-            if (currentPosition>180) {
-                armMotor.setPower(0);
-                otherArmMotor.setPower(0);
-            }
-            // Wrist movement for claw with 15-degree movement limitation
-            if (gamepad2.left_bumper) {
-                // Rotate claw clockwise by 15 degrees (limit to 0 to 1 range)
-                double newPosition = currentClawPosition + (1.0 / 20.0);  //servo precision
-                if (newPosition > 0.6) {
-                    newPosition = 0.6;  // Ensure the position doesn't exceed the maximum (1)
-                }
-                currentClawPosition = newPosition;
-                claw.setPosition(currentClawPosition);
-            } else if (gamepad2.right_bumper) {
-                // Rotate claw counterclockwise by 15 degrees (limit to 0 to 1 range)
-                double newPosition = currentClawPosition - (1.0 / 20.0);  //servo precision
-                if (newPosition < 0.8) {
-                    newPosition = 0.8;  // Ensure the position doesn't fall below the minimum (0)
-                }
-                currentClawPosition = newPosition;
-                claw.setPosition(currentClawPosition);
-            }
-
-            //Debug stuffs
-            telemetry.addData("Arm Power", armPower);
-            telemetry.addData("Claw Pos.", currentClawPosition);
+            //Debug stuffs//Debug stuffs//Debug stuffs//Debug stuffs//Debug stuffs//Debug stuffs//
+            telemetry.addData("Arm Data:",3);
+            telemetry.addData("Current Arm Pos", ArmCurrentPosition);
+            telemetry.addData("Target Arm Pos", ArmTargetPos);
+            telemetry.addData("ArmResistancePower", ArmResistancePower);
+            telemetry.addData("Grabby Data:",2);
+            telemetry.addData("Claw Pos", newClaw);
+            telemetry.addData("Wrist Pos", newWrist);
+            telemetry.addData("Chassis",4);
             telemetry.addData("Front Power", leftFrontPower);
             telemetry.addData("Back Power", rightFrontPower);
             telemetry.addData("Left Power", leftBackPower);

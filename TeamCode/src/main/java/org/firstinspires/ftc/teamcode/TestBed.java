@@ -3,11 +3,11 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
+            //import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
 @TeleOp
-public class WMtest extends LinearOpMode {
+public class TestBed extends LinearOpMode {
     // Drive motors
     DcMotor leftFrontDrive = null;
     DcMotor leftBackDrive = null;
@@ -70,6 +70,8 @@ public class WMtest extends LinearOpMode {
         while (opModeIsActive()) {
 
             telemetry.clearAll();
+
+            //MOVEMENT CODE//MOVEMENT CODE//MOVEMENT CODE//MOVEMENT CODE//MOVEMENT CODE//
             // Omni-wheel drive control (gamepad1)
             double drive = -gamepad1.left_stick_y * SPEED_MULTIPLIER;  // Forward/backward
             double strafe = gamepad1.right_stick_x * strafe_speed * SPEED_MULTIPLIER;  // Left/right
@@ -94,7 +96,7 @@ public class WMtest extends LinearOpMode {
             rightBackDrive.setPower(rightBackPower);
 
 
-            // Get the current position of the motor
+            //ARM CODE//ARM CODE//ARM CODE//ARM CODE//ARM CODE//ARM CODE//ARM CODE//ARM CODE//
             int ArmCurrentPosition = armMotor.getCurrentPosition();
             int ArmTargetPos = 0;
             int ArmError = ArmTargetPos - ArmCurrentPosition;
@@ -107,11 +109,12 @@ public class WMtest extends LinearOpMode {
 
             ArmTargetPos = (int) (ArmTargetPos+gamepad2.left_stick_y);
 
-
+            //WRIST CODE//WRIST CODE//WRIST CODE//WRIST CODE//WRIST CODE//WRIST CODE//WRIST CODE//
             double newWrist;
             newWrist = (int) (ArmTargetPos+gamepad2.left_stick_y);
             wrist.setPosition(newWrist);
 
+            //CLAW CODE//CLAW CODE//CLAW CODE//CLAW CODE//CLAW CODE//CLAW CODE//CLAW CODE//
             int clawON = -1;
             double newClaw = 0;
             claw.setPosition(newClaw);
@@ -120,12 +123,12 @@ public class WMtest extends LinearOpMode {
             }
 
             if (clawON == -1) {
-                newClaw = 0;
+                newClaw = 180; //0
             } else {
-                newClaw = 150;
+                newClaw = 120; //150
             }
 
-            //Debug stuffs
+            //Debug stuffs//Debug stuffs//Debug stuffs//Debug stuffs//Debug stuffs//Debug stuffs//
             telemetry.addData("Arm Data:",3);
             telemetry.addData("Current Arm Pos", ArmCurrentPosition);
             telemetry.addData("Target Arm Pos", ArmTargetPos);
