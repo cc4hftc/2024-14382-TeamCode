@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-            //import com.qualcomm.robotcore.hardware.DcMotorSimple;
+//import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
 @TeleOp
@@ -35,6 +35,8 @@ public class TestBed extends LinearOpMode {
     private double leftBackPower = 0;
     private double rightFrontPower = 0;
     private double rightBackPower = 0;
+    float ArmTargetPos = -25;
+    double newWrist = 0;
 
     @Override
     public void runOpMode() {
@@ -60,10 +62,6 @@ public class TestBed extends LinearOpMode {
         armMotor.setDirection(DcMotor.Direction.FORWARD);
         otherArmMotor.setDirection(DcMotor.Direction.REVERSE);
         claw.setDirection(Servo.Direction.FORWARD);
-
-        // Set motor modes
-        armMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        otherArmMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         waitForStart();
 
@@ -98,20 +96,19 @@ public class TestBed extends LinearOpMode {
 
             //ARM CODE//ARM CODE//ARM CODE//ARM CODE//ARM CODE//ARM CODE//ARM CODE//ARM CODE//
             int ArmCurrentPosition = armMotor.getCurrentPosition();
-            int ArmTargetPos = 0;
-            int ArmError = ArmTargetPos - ArmCurrentPosition;
 
-            double kP = 0.1;
-            double ArmResistancePower = ArmError * kP;
+            ArmTargetPos = (ArmTargetPos+gamepad2.left_stick_y);
 
-            ArmResistancePower = Math.max(-1, Math.min(1, ArmResistancePower));
-            armMotor.setPower(ArmResistancePower);
+            int ArmError =  (int) (ArmTargetPos - ArmCurrentPosition);
 
-            ArmTargetPos = (int) (ArmTargetPos+gamepad2.left_stick_y);
+            ArmError = Math.max(-1, Math.min(1, ArmError));
+
+            armMotor.setPower(ArmError);
+            otherArmMotor.setPower(ArmError);
+
 
             //WRIST CODE//WRIST CODE//WRIST CODE//WRIST CODE//WRIST CODE//WRIST CODE//WRIST CODE//
-            double newWrist;
-            newWrist = (int) (ArmTargetPos+gamepad2.left_stick_y);
+            newWrist = (newWrist+gamepad2.right_stick_y);
             wrist.setPosition(newWrist);
 
             //CLAW CODE//CLAW CODE//CLAW CODE//CLAW CODE//CLAW CODE//CLAW CODE//CLAW CODE//
@@ -129,18 +126,18 @@ public class TestBed extends LinearOpMode {
             }
 
             //Debug stuffs//Debug stuffs//Debug stuffs//Debug stuffs//Debug stuffs//Debug stuffs//
-            telemetry.addData("Arm Data:",3);
-            telemetry.addData("Current Arm Pos", ArmCurrentPosition);
-            telemetry.addData("Target Arm Pos", ArmTargetPos);
-            telemetry.addData("ArmResistancePower", ArmResistancePower);
-            telemetry.addData("Grabby Data:",2);
-            telemetry.addData("Claw Pos", newClaw);
-            telemetry.addData("Wrist Pos", newWrist);
-            telemetry.addData("Chassis",4);
-            telemetry.addData("Front Power", leftFrontPower);
-            telemetry.addData("Back Power", rightFrontPower);
-            telemetry.addData("Left Power", leftBackPower);
-            telemetry.addData("Right Power", rightBackPower);
+            telemetry.addData("--Arm Data:",4);
+            telemetry.addData("  - Current Arm Pos", ArmCurrentPosition);
+            telemetry.addData("  - Target Arm Pos", ArmTargetPos);
+            telemetry.addData("  - Arm Error", ArmError);
+            telemetry.addData("--Grabby Data:",2);
+            telemetry.addData("  - Claw Pos", newClaw);
+            telemetry.addData("  - Wrist Pos", newWrist);
+            telemetry.addData("--Chassis",4);
+            telemetry.addData("  - Front Power", leftFrontPower);
+            telemetry.addData("  - Back Power", rightFrontPower);
+            telemetry.addData("  - Left Power", leftBackPower);
+            telemetry.addData("  - Right Power", rightBackPower);
             telemetry.update();
         }
     }
