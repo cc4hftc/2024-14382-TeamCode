@@ -35,8 +35,11 @@ public class TestBed extends LinearOpMode {
     private double leftBackPower = 0;
     private double rightFrontPower = 0;
     private double rightBackPower = 0;
-    float ArmTargetPos = -25;
-    double newWrist = 0;
+    float ArmTargetPos = 0;
+    double newWrist = 0.7;
+    int newClaw = 0;
+    private double armPower = 0;
+    private double otherArmPower = 0.0;
 
     @Override
     public void runOpMode() {
@@ -62,14 +65,18 @@ public class TestBed extends LinearOpMode {
         armMotor.setDirection(DcMotor.Direction.FORWARD);
         otherArmMotor.setDirection(DcMotor.Direction.REVERSE);
         claw.setDirection(Servo.Direction.FORWARD);
+        otherArmMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); // Reset the motor encoder
+        otherArmMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER); // Turn the motor back on when we are done
 
         waitForStart();
 
         while (opModeIsActive()) {
 
-            telemetry.clearAll();
+            telemetry.clearAll(); //clear the telemetry
+
 
             //MOVEMENT CODE//MOVEMENT CODE//MOVEMENT CODE//MOVEMENT CODE//MOVEMENT CODE//
+
             // Omni-wheel drive control (gamepad1)
             double drive = -gamepad1.left_stick_y * SPEED_MULTIPLIER;  // Forward/backward
             double strafe = gamepad1.right_stick_x * strafe_speed * SPEED_MULTIPLIER;  // Left/right
@@ -95,45 +102,68 @@ public class TestBed extends LinearOpMode {
 
 
             //ARM CODE//ARM CODE//ARM CODE//ARM CODE//ARM CODE//ARM CODE//ARM CODE//ARM CODE//
-            int ArmCurrentPosition = armMotor.getCurrentPosition();
 
-            ArmTargetPos = (ArmTargetPos+gamepad2.left_stick_y);
+            //Get the current arm position
+            int ArmCurrentPosition = otherArmMotor.getCurrentPosition();
 
-            int ArmError =  (int) (ArmTargetPos - ArmCurrentPosition);
+            //Set the arm target position
+            ArmTargetPos += (-1*(gamepad2.left_stick_y/10));
 
-            ArmError = Math.max(-1, Math.min(1, ArmError));
+            //Calculate the arm error
+            double ArmError = (ArmTargetPos - ArmCurrentPosition);
 
-            armMotor.setPower(ArmError);
-            otherArmMotor.setPower(ArmError);
+            //Add a min and max arm speed
+            ArmError = Math.max(-0.5, Math.min(0.5, ArmError));
+
+            //Ramp the arm power for better acceleration
+            armPower = rampPower(armPower, ArmError/5);
+            otherArmPower = rampPower(otherArmPower, ArmError/5);
+
+            //Set the power to the arm motors
+            armMotor.setPower(armPower);
+            otherArmMotor.setPower(otherArmPower);
 
 
             //WRIST CODE//WRIST CODE//WRIST CODE//WRIST CODE//WRIST CODE//WRIST CODE//WRIST CODE//
-            newWrist = (newWrist+gamepad2.right_stick_y);
+
+            //Set the wrist target position
+            newWrist += (gamepad2.right_stick_y/500);
+
+            //Set the min and max wrist positions
+            newWrist = Math.max(0, Math.min(0.7, newWrist));
+
+            //Set the servo position
             wrist.setPosition(newWrist);
 
-            //CLAW CODE//CLAW CODE//CLAW CODE//CLAW CODE//CLAW CODE//CLAW CODE//CLAW CODE//
-            int clawON = -1;
-            double newClaw = 0;
-            claw.setPosition(newClaw);
-            if (gamepad2.left_bumper || gamepad2.right_bumper) {
-                clawON = (clawON *-1);
-            }
 
-            if (clawON == -1) {
-                newClaw = 180; //0
-            } else {
-                newClaw = 120; //150
-            }
+            //CLAW CODE//CLAW CODE//CLAW CODE//CLAW CODE//CLAW CODE//CLAW CODE//CLAW CODE//
+
+            //Detect a bumper press
+            if (gamepad2.left_bumper) {
+                newClaw = 180;
+            } else if (gamepad2.right_bumper) {
+                newClaw = 0;
+                }
+
+
+            //Set the claw position
+            claw.setPosition(newClaw);
 
             //Debug stuffs//Debug stuffs//Debug stuffs//Debug stuffs//Debug stuffs//Debug stuffs//
-            telemetry.addData("--Arm Data:",4);
+
+            //Arm debug
+            telemetry.addData("--Arm Data:::",4);
             telemetry.addData("  - Current Arm Pos", ArmCurrentPosition);
             telemetry.addData("  - Target Arm Pos", ArmTargetPos);
             telemetry.addData("  - Arm Error", ArmError);
-            telemetry.addData("--Grabby Data:",2);
+
+            //Grabby debug
+            telemetry.addData("--Grabby Data:::",2);
             telemetry.addData("  - Claw Pos", newClaw);
             telemetry.addData("  - Wrist Pos", newWrist);
-            telemetry.addData("--Chassis",4);
+
+            //Chassis debug
+            telemetry.addData("--Chassis:::",4);
             telemetry.addData("  - Front Power", leftFrontPower);
             telemetry.addData("  - Back Power", rightFrontPower);
             telemetry.addData("  - Left Power", leftBackPower);

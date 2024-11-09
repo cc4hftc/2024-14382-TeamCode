@@ -67,8 +67,7 @@ public class OmniWheelTeleOp extends LinearOpMode {
         // Set motor modes
         armMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         otherArmMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        armMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        otherArmMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
 
         waitForStart();
 
@@ -112,6 +111,8 @@ public class OmniWheelTeleOp extends LinearOpMode {
             } else {
                 armMotor.setPower(0);
                 otherArmMotor.setPower(0);
+                armMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+                otherArmMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             }
 
             newWrist += (gamepad2.right_stick_y/500); //dividin'
