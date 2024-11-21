@@ -22,6 +22,7 @@ public class OmniWheelTeleOpPIDArm extends LinearOpMode {
     Servo claw = null; // Claw servo reference
 
     // PID control constants for the arm
+    private double otherTargetPosition;
     private double targetPosition;
     private double kP = 0.0001; //0.001
     private double kI = 0.00;
@@ -72,23 +73,24 @@ public class OmniWheelTeleOpPIDArm extends LinearOpMode {
         leftBackDrive.setDirection(DcMotor.Direction.REVERSE);
 
         // Set arm motor directions
-        armMotor.setDirection(DcMotor.Direction.FORWARD);
-        otherArmMotor.setDirection(DcMotor.Direction.REVERSE);
+        armMotor.setDirection(DcMotorEx.Direction.FORWARD);
+        otherArmMotor.setDirection(DcMotorEx.Direction.REVERSE);
         claw.setDirection(Servo.Direction.FORWARD);
 
         // Set motor modes
-        otherArmMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        otherArmMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        armMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        armMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        otherArmMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        otherArmMotor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        armMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        armMotor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
 
+        otherTargetPosition = 0;
         targetPosition = 0;
         waitForStart();
         timer.reset();
 
         while (opModeIsActive()) {
-            double otherArmpos = otherArmMotor.getCurrentPosition();
-            double Armpos = armMotor.getCurrentPosition();
+            int otherArmpos = otherArmMotor.getCurrentPosition();
+            int Armpos = armMotor.getCurrentPosition();
 
             telemetry.clearAll();
             // Omni-wheel drive control (gamepad1)
@@ -124,13 +126,15 @@ public class OmniWheelTeleOpPIDArm extends LinearOpMode {
                 // Right trigger is pressed (move arm upwards)
                 armMotor.setPower(armPower / 15);
                 otherArmMotor.setPower(armPower / 15);
-                targetPosition = otherArmMotor.getCurrentPosition();
+                otherTargetPosition = otherArmMotor.getCurrentPosition();
+                targetPosition = armMotor.getCurrentPosition();
                 resetPID();
             } else if (leftTriggerEnabled && armPower < -0.1) {
                 // Left trigger is pressed (move arm downwards)
                 armMotor.setPower(armPower / 15);
                 otherArmMotor.setPower(armPower / 15);
-                targetPosition = otherArmMotor.getCurrentPosition();
+                otherTargetPosition = otherArmMotor.getCurrentPosition();
+                targetPosition = armMotor.getCurrentPosition();
                 resetPID();
             } else {
                 // No trigger pressed: PID control
@@ -151,6 +155,11 @@ public class OmniWheelTeleOpPIDArm extends LinearOpMode {
                 rightTriggerEnabled = true;
             }
 
+            if (Armpos == otherArmpos) {
+                // Do nothing
+            } else {
+                armMotor.setTargetPosition(otherArmpos);
+            }
 
             //WRIST CODE//WRIST CODE//WRIST CODE//WRIST CODE//WRIST CODE//WRIST CODE//WRIST CODE//
 
@@ -184,6 +193,7 @@ public class OmniWheelTeleOpPIDArm extends LinearOpMode {
             telemetry.addData("  - Current otherArm Pos", otherArmMotor.getCurrentPosition());
             telemetry.addData("  - Current Arm pos", armMotor.getCurrentPosition());
             telemetry.addData("  - Target Arm Pos", targetPosition);
+            telemetry.addData("  - Other Target Arm Pos", otherTargetPosition);
 
             //PIDF debug
             telemetry.addData("--PIDF Data:::","WIP'");
@@ -212,24 +222,24 @@ public class OmniWheelTeleOpPIDArm extends LinearOpMode {
 
     private void pidControl() {
         double otherCurrentPosition = otherArmMotor.getCurrentPosition();
-        //double currentPosition = armMotor.getCurrentPosition();
-        double otherError = targetPosition - otherCurrentPosition;
-        //double error = targetPosition - currentPosition;
+        double currentPosition = armMotor.getCurrentPosition();
+        double otherError = otherTargetPosition - otherCurrentPosition;
+        double error = targetPosition - currentPosition;
         double deltaTime = timer.seconds();
         integral += otherError * deltaTime;
         double derivative = (otherError - lastError) / deltaTime;
-        //double power = kP * error + kI * integral + kD * derivative + kF;
+        double power = kP * error + kI * integral + kD * derivative + kF;
         double otherPower = kP * otherError + kI * integral + kD * derivative + kF;
-        //armMotor.setPower(power);
+        armMotor.setPower(power);
         otherArmMotor.setPower(otherPower);
-        //lastError = error;
+        lastError = error;
         otherlastError = otherError;
         timer.reset();
     }
 
     private void resetPID() {
         integral = 0;
-        //lastError = 0;
+        lastError = 0;
         otherlastError = 0;
         timer.reset();
     }
