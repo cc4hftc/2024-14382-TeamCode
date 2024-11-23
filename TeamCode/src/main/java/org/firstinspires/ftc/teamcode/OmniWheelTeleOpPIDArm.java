@@ -96,7 +96,7 @@ public class OmniWheelTeleOpPIDArm extends LinearOpMode {
             // Omni-wheel drive control (gamepad1)
             double drive = -gamepad1.left_stick_y * SPEED_MULTIPLIER;  // Forward/backward
             double strafe = gamepad1.right_stick_x * strafe_speed * SPEED_MULTIPLIER;  // Left/right
-            double rotate = (gamepad1.left_trigger-gamepad1.right_trigger) * TURN_SPEED_FACTOR * SPEED_MULTIPLIER;
+            double rotate = (gamepad1.right_trigger-gamepad1.left_trigger) * TURN_SPEED_FACTOR * SPEED_MULTIPLIER;
 
             // Calculate target power for each drive motor
             double targetLeftFrontPower = -strafe + rotate;
