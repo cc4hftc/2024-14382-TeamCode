@@ -55,18 +55,18 @@ public class OmniWheelTeleOpPIDArm extends LinearOpMode {
     @Override
     public void runOpMode() {
         // Initialize drive motors
-        leftFrontDrive = hardwareMap.get(DcMotor.class, "left_front_drive");
-        leftBackDrive = hardwareMap.get(DcMotor.class, "left_back_drive");
-        rightFrontDrive = hardwareMap.get(DcMotor.class, "right_front_drive");
-        rightBackDrive = hardwareMap.get(DcMotor.class, "right_back_drive");
+        leftFrontDrive = hardwareMap.get(DcMotor.class, "left_front_drive");    //Port 0
+        leftBackDrive = hardwareMap.get(DcMotor.class, "left_back_drive");      // Port 1
+        rightFrontDrive = hardwareMap.get(DcMotor.class, "right_front_drive");  // Port 2
+        rightBackDrive = hardwareMap.get(DcMotor.class, "right_back_drive");    // Port 3
 
         // Initialize arm motors
-        armMotor = hardwareMap.get(DcMotorEx.class, "arm_motor");
-        otherArmMotor = hardwareMap.get(DcMotorEx.class, "arm_motor2");
+        armMotor = hardwareMap.get(DcMotorEx.class, "arm_motor");               // Port 2
+        otherArmMotor = hardwareMap.get(DcMotorEx.class, "arm_motor2");         // Port 1
 
         // Initialize the claw servo (make sure the name matches the configuration)
-        claw = hardwareMap.get(Servo.class, "clawServo");
-        wrist = hardwareMap.get(Servo.class, "wristServo");
+        claw = hardwareMap.get(Servo.class, "clawServo");                       // Port 2
+        wrist = hardwareMap.get(Servo.class, "wristServo");                     // Port 1
 
         // Set drive motor directions
         leftFrontDrive.setDirection(DcMotor.Direction.REVERSE);
