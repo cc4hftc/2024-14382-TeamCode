@@ -20,6 +20,7 @@ public class OmniWheelTeleOpPIDArm extends LinearOpMode {
     DcMotorEx armMotor = null;
     DcMotorEx otherArmMotor = null;
     Servo claw = null; // Claw servo reference
+    Servo other_claw = null; // Claw servo reference
 
     // PID control constants for the arm
     private double otherTargetPosition;
@@ -65,8 +66,9 @@ public class OmniWheelTeleOpPIDArm extends LinearOpMode {
         otherArmMotor = hardwareMap.get(DcMotorEx.class, "arm_motor2");         // Port 1
 
         // Initialize the claw servo (make sure the name matches the configuration)
-        claw = hardwareMap.get(Servo.class, "clawServo");                       // Port 2
-        wrist = hardwareMap.get(Servo.class, "wristServo");                     // Port 1
+        claw = hardwareMap.get(Servo.class, "clawServo");                       // Port 1
+        other_claw = hardwareMap.get(Servo.class, "other_clawServo");           // Port 2
+        wrist = hardwareMap.get(Servo.class, "wristServo");                     // Port 0
 
         // Set drive motor directions
         leftFrontDrive.setDirection(DcMotor.Direction.REVERSE);
@@ -76,6 +78,7 @@ public class OmniWheelTeleOpPIDArm extends LinearOpMode {
         armMotor.setDirection(DcMotorEx.Direction.FORWARD);
         otherArmMotor.setDirection(DcMotorEx.Direction.REVERSE);
         claw.setDirection(Servo.Direction.FORWARD);
+        other_claw.setDirection(Servo.Direction.REVERSE);
 
         // Set motor modes
         otherArmMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
@@ -178,35 +181,39 @@ public class OmniWheelTeleOpPIDArm extends LinearOpMode {
 
             //Detect a bumper press
             if (gamepad2.left_bumper) {  //Close
-                newClaw = 0.1655;
+                newClaw = 0.1775;
             } else if (gamepad2.right_bumper) {  //Open
                 newClaw = 0;
             }
 
             //Set the claw servo position
             claw.setPosition(newClaw);
+            other_claw.setPosition(newClaw);
 
 
             //DEBUG CODE//DEBUG CODE//DEBUG CODE//DEBUG CODE//DEBUG CODE//DEBUG CODE//DEBUG CODE//
 
             //Arm debug
-            telemetry.addData("--Arm Data:::","WIP");
+            telemetry.addData("--Arm Data:::",4);
             telemetry.addData("  - Current otherArm Pos", otherArmMotor.getCurrentPosition());
             telemetry.addData("  - Current Arm pos", armMotor.getCurrentPosition());
             telemetry.addData("  - Target Arm Pos", targetPosition);
             telemetry.addData("  - Other Target Arm Pos", otherTargetPosition);
+            telemetry.addData(" ", null);
 
             //PIDF debug
-            telemetry.addData("--PIDF Data:::","WIP'");
+            telemetry.addData("--PIDF Data:::",4);
             telemetry.addData("  - kP", kP);
             telemetry.addData("  - kI", kI);
             telemetry.addData("  - kD", kD);
             telemetry.addData("  - kF", kF);
+            telemetry.addData(" ", null);
 
             //Grabby debug
             telemetry.addData("--Grabby Data:::",2);
             telemetry.addData("  - Claw Pos", newClaw);
             telemetry.addData("  - Wrist Pos", newWrist);
+            telemetry.addData(" ", null);
 
             //Chassis debug
             telemetry.addData("--Chassis:::",4);
@@ -214,6 +221,7 @@ public class OmniWheelTeleOpPIDArm extends LinearOpMode {
             telemetry.addData("  - Back Power", rightFrontPower);
             telemetry.addData("  - Left Power", leftBackPower);
             telemetry.addData("  - Right Power", rightBackPower);
+            telemetry.addData(" ", null);
             telemetry.update();
 
 
