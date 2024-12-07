@@ -4,16 +4,11 @@ import com.qualcomm.hardware.dfrobot.HuskyLens;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-
-import org.firstinspires.ftc.robotcore.internal.system.Deadline;
-
-import java.util.concurrent.TimeUnit;
 
 @Autonomous
 public class Other_Auto_Test_DO_NOT_TOUCH extends LinearOpMode {
 
-    private final int READ_PERIOD = 1;
+    private final int READ_PERIOD = 0;  // Period for rate limiting (in seconds)
 
     private HuskyLens huskyLens;
 
@@ -38,61 +33,91 @@ public class Other_Auto_Test_DO_NOT_TOUCH extends LinearOpMode {
         rightFrontDrive.setDirection(DcMotor.Direction.FORWARD);
         rightBackDrive.setDirection(DcMotor.Direction.FORWARD);
 
-        Deadline rateLimit = new Deadline(READ_PERIOD, TimeUnit.SECONDS);
-        rateLimit.expire();
-
+        // Communicate with the HuskyLens sensor
         if (!huskyLens.knock()) {
             telemetry.addData(">>", "Problem communicating with " + huskyLens.getDeviceName());
         } else {
             telemetry.addData(">>", "Press start to continue");
         }
 
-        // Set algorithm for AprilTag recognition
+        // Set algorithm for object recognition
         huskyLens.selectAlgorithm(HuskyLens.Algorithm.COLOR_RECOGNITION);
         telemetry.update();
         waitForStart();
 
-        while (opModeIsActive()) {
-            if (!rateLimit.hasExpired()) {
-                continue;
-            }
-            rateLimit.reset();
-            
-            leftFrontDrive.setPower(0);
-            leftBackDrive.setPower(0);
-            rightFrontDrive.setPower(0);
-            rightBackDrive.setPower(0);
-            
-            // Get detected blocks
-            HuskyLens.Block[] blocks = huskyLens.blocks();
-            telemetry.addData("Block count", blocks.length);
-            for (int i = 0; i < blocks.length; i++) {
-                telemetry.addData("Block", blocks[i].toString());
-                int x = (blocks[i].x);
-                int y = (blocks[i].y);
-                telemetry.addData("x", x);
-                telemetry.addData("y", y);
+        // Use a timer to manage rate limiting (every READ_PERIOD seconds)
+        double lastTime = getRuntime();
 
-                // Check if the detected block has ID
-                if (blocks[i].id == 2) {
-                    // Move motors accordingly
-                    // Set motor directions: 2 forward, 2 backward
-                    /*leftFrontDrive.setPower((x/200)*-1); //back
-                    leftBackDrive.setPower((y/200)*-1); //Right
-                    rightFrontDrive.setPower((x/200)*-1); //front
-                    rightBackDrive.setPower((y/200)*-1); //Left*/
-                    
-                    double motorfront = ((x/200)*-1);
-                    double motorback = ((y/200)*-1);
-                    double motorleft = ((x/200)*-1);
-                    double motorright = ((y/200)*-1);
-                    telemetry.addData("motorfront", motorfront);
-                    telemetry.addData("motorback", motorback);
-                    telemetry.addData("motorleft", motorleft);
-                    telemetry.addData("motorright", motorright);
+        while (opModeIsActive()) {
+            // Check if enough time has passed for the next read cycle
+            if (getRuntime() - lastTime >= READ_PERIOD) {
+                lastTime = getRuntime();  // Reset the timer
+
+
+                // Get detected blocks from HuskyLens
+                HuskyLens.Block[] blocks = huskyLens.blocks();
+                telemetry.addData("Block count", blocks.length);
+                leftFrontDrive.setPower(0);
+                leftBackDrive.setPower(0);
+                rightFrontDrive.setPower(0);
+                rightBackDrive.setPower(0);
+
+                for (int i = 0; i < blocks.length; i++) {
+                    telemetry.addData("Block", blocks[i].toString());
+                    int x = blocks[i].x;
+                    int y = blocks[i].y;
+                    telemetry.addData("x", x);
+                    telemetry.addData("y", y);
+
+                    // Check if the detected block has ID 2 and is within the x and y range
+                    if (blocks[i].id == 2 && x >= 145 && x <= 175 && y >= 105 && y <= 135) {
+                        // Calculate motor power based on x and y positions
+
+                        // Set motor power based on x and y positions
+                        /*leftFrontDrive.setPower(motorfront);
+                        leftBackDrive.setPower(motorback);
+                        rightFrontDrive.setPower(motorleft);
+                        rightBackDrive.setPower(motorright);*/
+
+                        leftFrontDrive.setPower(1);
+                        leftBackDrive.setPower(1);
+                        rightFrontDrive.setPower(1);
+                        rightBackDrive.setPower(1);
+
+                        //X<=MAX && X>=MIN && Y<=MAX && Y>=MIN
+                    } else if (blocks[i].id == 2 && x<=145 && x>=0 && y<=105 && y>=0) {
+                        leftFrontDrive.setPower(0.2);
+                        leftBackDrive.setPower(0.2);
+                        rightFrontDrive.setPower(0.2);
+                        rightBackDrive.setPower(0.2);
+                    } else if (blocks[i].id == 2 && x<=320 && x>=175 && y<=105 && y>=0) {
+                        leftFrontDrive.setPower(0.3);
+                        leftBackDrive.setPower(0.3);
+                        rightFrontDrive.setPower(0.3);
+                        rightBackDrive.setPower(0.3);
+                    } else if (blocks[i].id == 2 && x<=145 && x>=0 && y<=240 && y>=135) {
+                        leftFrontDrive.setPower(0.4);
+                        leftBackDrive.setPower(0.4);
+                        rightFrontDrive.setPower(0.4);
+                        rightBackDrive.setPower(0.4);
+                    } else if (blocks[i].id == 2 && x<=320 && x>=175 && y<=240 && y>=135) {
+                        leftFrontDrive.setPower(0.5);
+                        leftBackDrive.setPower(0.5);
+                        rightFrontDrive.setPower(0.5);
+                        rightBackDrive.setPower(0.5);
+
+                    }
+
+                    telemetry.addData("LeftFront", leftFrontDrive);
+                    telemetry.addData("LeftBack", leftFrontDrive);
+                    telemetry.addData("RightFront", leftFrontDrive);
+                    telemetry.addData("RightBack", leftFrontDrive);
+
+                    telemetry.update();
                 }
             }
-            telemetry.update();
         }
     }
+
+
 }
