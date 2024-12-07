@@ -21,6 +21,7 @@ public class OmniWheelTeleOpPIDArm extends LinearOpMode {
     DcMotorEx otherArmMotor = null;
     Servo claw = null; // Claw servo reference
     Servo other_claw = null; // Claw servo reference
+    DcMotor winch = null;
 
     // PID control constants for the arm
     private double otherTargetPosition;
@@ -69,6 +70,7 @@ public class OmniWheelTeleOpPIDArm extends LinearOpMode {
         claw = hardwareMap.get(Servo.class, "clawServo");                       // Port 1
         other_claw = hardwareMap.get(Servo.class, "other_clawServo");           // Port 2
         wrist = hardwareMap.get(Servo.class, "wristServo");                     // Port 0
+        winch = hardwareMap.get(DcMotor.class, "winch");                        // Port 0
 
         // Set drive motor directions
         leftFrontDrive.setDirection(DcMotor.Direction.REVERSE);
@@ -79,6 +81,8 @@ public class OmniWheelTeleOpPIDArm extends LinearOpMode {
         otherArmMotor.setDirection(DcMotorEx.Direction.REVERSE);
         claw.setDirection(Servo.Direction.FORWARD);
         other_claw.setDirection(Servo.Direction.REVERSE);
+        winch.setDirection(DcMotor.Direction.FORWARD);
+
 
         // Set motor modes
         otherArmMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
@@ -120,7 +124,7 @@ public class OmniWheelTeleOpPIDArm extends LinearOpMode {
             rightBackDrive.setPower(rightBackPower);
 
             // Arm control (gamepad2)
-            double armPower = gamepad2.right_trigger - gamepad2.left_trigger;
+            double armPower = gamepad2.left_trigger - gamepad2.right_trigger;
 
 
             //ARM CODE//ARM CODE//ARM CODE//ARM CODE//ARM CODE//ARM CODE//ARM CODE//ARM CODE//
@@ -147,6 +151,13 @@ public class OmniWheelTeleOpPIDArm extends LinearOpMode {
 
             double tick = otherArmMotor.getCurrentPosition();
 
+            if (gamepad1.a){
+                winch.setPower(0.5);
+            } else if (gamepad1.b) {
+                winch.setPower(-0.5);
+            } else {
+                winch.setPower(0);
+            }
 
             // Stop the right trigger if tick exceeds 450
             if (tick >= 450) {
@@ -171,7 +182,7 @@ public class OmniWheelTeleOpPIDArm extends LinearOpMode {
             newWrist += (gamepad2.right_stick_y/150);
 
             //Set the min and max wrist positions
-            newWrist = Math.max(0, Math.min(0.75, newWrist));
+            newWrist = Math.max(0, Math.min(0.8, newWrist));
 
             //Set the wrist servo position
             wrist.setPosition(newWrist);
@@ -180,10 +191,10 @@ public class OmniWheelTeleOpPIDArm extends LinearOpMode {
             //CLAW CODE//CLAW CODE//CLAW CODE//CLAW CODE//CLAW CODE//CLAW CODE//CLAW CODE//
 
             //Detect a bumper press
-            if (gamepad2.left_bumper) {  //Close
+            if (gamepad2.right_bumper) {  //Close
                 newClaw = 0.1775;
-            } else if (gamepad2.right_bumper) {  //Open
-                newClaw = 0;
+            } else if (gamepad2.left_bumper) {  //Open
+                newClaw = 0.075;
             }
 
             //Set the claw servo position
