@@ -90,10 +90,10 @@ public class Other_Auto_Test_DO_NOT_TOUCH extends LinearOpMode {
                         double rightBackPower = motorPowerY - motorPowerX; // Move forward/backward and rotate
 
                         // Scale power to limit the max motor power to 1
-                        leftFrontPower = Math.max(Math.min(leftFrontPower, 1), -1);
-                        rightFrontPower = Math.max(Math.min(rightFrontPower, 1), -1);
-                        leftBackPower = Math.max(Math.min(leftBackPower, 1), -1);
-                        rightBackPower = Math.max(Math.min(rightBackPower, 1), -1);
+                        leftFrontPower = Math.max(Math.min(leftFrontPower, 0.5), -0.5);
+                        rightFrontPower = Math.max(Math.min(rightFrontPower, 0.5), -0.5);
+                        leftBackPower = Math.max(Math.min(leftBackPower, 0.5), -0.5);
+                        rightBackPower = Math.max(Math.min(rightBackPower, 0.5), -0.5);
 
                         // Set the motor powers to try and reach the target position
                         leftFrontDrive.setPower(leftFrontPower);
