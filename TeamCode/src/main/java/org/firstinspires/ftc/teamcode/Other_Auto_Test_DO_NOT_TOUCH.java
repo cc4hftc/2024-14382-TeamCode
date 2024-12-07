@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
+/** @noinspection FieldCanBeLocal, IntegerDivisionInFloatingPointContext , ForLoopReplaceableByForEach */
 @Autonomous
 public class Other_Auto_Test_DO_NOT_TOUCH extends LinearOpMode {
 
@@ -18,6 +19,13 @@ public class Other_Auto_Test_DO_NOT_TOUCH extends LinearOpMode {
     private DcMotor rightFrontDrive;
     private DcMotor rightBackDrive;
 
+    // Define target area boundaries
+    private final int MIN_TARGET_X = 145;
+    private final int MAX_TARGET_X = 175;
+    private final int MIN_TARGET_Y = 105;
+    private final int MAX_TARGET_Y = 135;
+
+    /** @noinspection ForLoopReplaceableByForEach*/
     @Override
     public void runOpMode() {
         // Initialize HuskyLens and motors
@@ -28,10 +36,10 @@ public class Other_Auto_Test_DO_NOT_TOUCH extends LinearOpMode {
         rightBackDrive = hardwareMap.get(DcMotor.class, "right_back_drive");
 
         // Set initial motor directions
-        leftFrontDrive.setDirection(DcMotor.Direction.REVERSE);
-        leftBackDrive.setDirection(DcMotor.Direction.REVERSE);
-        rightFrontDrive.setDirection(DcMotor.Direction.FORWARD);
-        rightBackDrive.setDirection(DcMotor.Direction.FORWARD);
+        leftFrontDrive.setDirection(DcMotor.Direction.REVERSE);                         // Back
+        leftBackDrive.setDirection(DcMotor.Direction.REVERSE);                          // Left
+        rightFrontDrive.setDirection(DcMotor.Direction.FORWARD);                        // Front
+        rightBackDrive.setDirection(DcMotor.Direction.FORWARD);                         // Right
 
         // Communicate with the HuskyLens sensor
         if (!huskyLens.knock()) {
@@ -53,10 +61,10 @@ public class Other_Auto_Test_DO_NOT_TOUCH extends LinearOpMode {
             if (getRuntime() - lastTime >= READ_PERIOD) {
                 lastTime = getRuntime();  // Reset the timer
 
-
                 // Get detected blocks from HuskyLens
                 HuskyLens.Block[] blocks = huskyLens.blocks();
                 telemetry.addData("Block count", blocks.length);
+
                 leftFrontDrive.setPower(0);
                 leftBackDrive.setPower(0);
                 rightFrontDrive.setPower(0);
@@ -70,54 +78,33 @@ public class Other_Auto_Test_DO_NOT_TOUCH extends LinearOpMode {
                     telemetry.addData("y", y);
 
                     // Check if the detected block has ID 2 and is within the x and y range
-                    if (blocks[i].id == 2 && x >= 145 && x <= 175 && y >= 105 && y <= 135) {
-                        // Calculate motor power based on x and y positions
+                    if (blocks[i].id == 2) {
+                        // Calculate motor powers based on x and y positions
+                        double motorPowerX = (x - (MIN_TARGET_X + MAX_TARGET_X) / 2) / ((MAX_TARGET_X - MIN_TARGET_X) / 2);
+                        double motorPowerY = (y - (MIN_TARGET_Y + MAX_TARGET_Y) / 2) / ((MAX_TARGET_Y - MIN_TARGET_Y) / 2);
 
-                        // Set motor power based on x and y positions
-                        /*leftFrontDrive.setPower(motorfront);
-                        leftBackDrive.setPower(motorback);
-                        rightFrontDrive.setPower(motorleft);
-                        rightBackDrive.setPower(motorright);*/
+                        // Adjust motor powers based on X and Y offsets
+                        double leftFrontPower = motorPowerY - motorPowerX; // Move forward/backward and rotate
+                        double rightFrontPower = motorPowerY + motorPowerX; // Move forward/backward and rotate
+                        double leftBackPower = motorPowerY + motorPowerX;  // Move forward/backward and rotate
+                        double rightBackPower = motorPowerY - motorPowerX; // Move forward/backward and rotate
 
-                        leftFrontDrive.setPower(1);
-                        leftBackDrive.setPower(1);
-                        rightFrontDrive.setPower(1);
-                        rightBackDrive.setPower(1);
+                        // Scale power to limit the max motor power to 1
+                        leftFrontPower = Math.max(Math.min(leftFrontPower, 1), -1);
+                        rightFrontPower = Math.max(Math.min(rightFrontPower, 1), -1);
+                        leftBackPower = Math.max(Math.min(leftBackPower, 1), -1);
+                        rightBackPower = Math.max(Math.min(rightBackPower, 1), -1);
 
-                        //X<=MAX && X>=MIN && Y<=MAX && Y>=MIN
-                    } else if (blocks[i].id == 2 && x<=145 && x>=0 && y<=105 && y>=0) {
-                        leftFrontDrive.setPower(0.2);
-                        leftBackDrive.setPower(0.2);
-                        rightFrontDrive.setPower(0.2);
-                        rightBackDrive.setPower(0.2);
-                    } else if (blocks[i].id == 2 && x<=320 && x>=175 && y<=105 && y>=0) {
-                        leftFrontDrive.setPower(0.3);
-                        leftBackDrive.setPower(0.3);
-                        rightFrontDrive.setPower(0.3);
-                        rightBackDrive.setPower(0.3);
-                    } else if (blocks[i].id == 2 && x<=145 && x>=0 && y<=240 && y>=135) {
-                        leftFrontDrive.setPower(0.4);
-                        leftBackDrive.setPower(0.4);
-                        rightFrontDrive.setPower(0.4);
-                        rightBackDrive.setPower(0.4);
-                    } else if (blocks[i].id == 2 && x<=320 && x>=175 && y<=240 && y>=135) {
-                        leftFrontDrive.setPower(0.5);
-                        leftBackDrive.setPower(0.5);
-                        rightFrontDrive.setPower(0.5);
-                        rightBackDrive.setPower(0.5);
-
+                        // Set the motor powers to try and reach the target position
+                        leftFrontDrive.setPower(leftFrontPower);
+                        leftBackDrive.setPower(leftBackPower);
+                        rightFrontDrive.setPower(rightFrontPower);
+                        rightBackDrive.setPower(rightBackPower);
                     }
-
-                    telemetry.addData("LeftFront", leftFrontDrive);
-                    telemetry.addData("LeftBack", leftFrontDrive);
-                    telemetry.addData("RightFront", leftFrontDrive);
-                    telemetry.addData("RightBack", leftFrontDrive);
-
-                    telemetry.update();
                 }
+
+                telemetry.update();
             }
         }
     }
-
-
 }
