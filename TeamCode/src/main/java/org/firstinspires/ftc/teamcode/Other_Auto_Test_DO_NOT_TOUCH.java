@@ -75,6 +75,7 @@ public class Other_Auto_Test_DO_NOT_TOUCH extends LinearOpMode {
                     telemetry.addData("Block", blocks[i].toString());
                     int x = blocks[i].x;
                     int y = blocks[i].y;
+                    //Positon vars
                     double POSX = 0.25 - (x * 0.002);
                     double NEGX = -(0.25 - (x * 0.002));
                     double POSX1 = 0.25 - (320-x)*0.002;
