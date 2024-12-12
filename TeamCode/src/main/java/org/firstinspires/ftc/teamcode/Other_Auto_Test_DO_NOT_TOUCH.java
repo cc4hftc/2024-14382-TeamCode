@@ -20,10 +20,10 @@ public class Other_Auto_Test_DO_NOT_TOUCH extends LinearOpMode {
     private DcMotor rightBackDrive;
 
     // Define target area boundaries
-    private final int MIN_TARGET_X = 145;
-    private final int MAX_TARGET_X = 175;
-    private final int MIN_TARGET_Y = 105;
-    private final int MAX_TARGET_Y = 135;
+    private final int MIN_TARGET_X = 125;
+    private final int MAX_TARGET_X = 195;
+    private final int MIN_TARGET_Y = 140;
+    private final int MAX_TARGET_Y = 170;
 
     /** @noinspection ForLoopReplaceableByForEach*/
     @Override
@@ -58,6 +58,7 @@ public class Other_Auto_Test_DO_NOT_TOUCH extends LinearOpMode {
 
         while (opModeIsActive()) {
             // Check if enough time has passed for the next read cycle
+
             if (getRuntime() - lastTime >= READ_PERIOD) {
                 lastTime = getRuntime();  // Reset the timer
 
@@ -74,13 +75,52 @@ public class Other_Auto_Test_DO_NOT_TOUCH extends LinearOpMode {
                     telemetry.addData("Block", blocks[i].toString());
                     int x = blocks[i].x;
                     int y = blocks[i].y;
+                    double POSX = 0.25 - (x * 0.002);
+                    double NEGX = -(0.25 - (x * 0.002));
+                    double POSX1 = 0.25 - (320-x)*0.002;
+                    double NEGX1 = -(0.25 - (320-x)*0.002);
+
+                    double POSY = 1 - (y * 0.005);
+                    double NEGY = -(1 - (y * 0.0064));
+                    double POSY1 = 1 - (240-y)*0.0072;
+                    double NEGY1 = -(1 - (240-y)*0.0072);
                     telemetry.addData("x", x);
                     telemetry.addData("y", y);
 
                     // Check if the detected block has ID 2 and is within the x and y range
                     if (blocks[i].id == 2) {
+
+                        if (blocks[i].id == 2 && x < MIN_TARGET_X) {
+                            leftFrontDrive.setPower(NEGX);
+                            leftBackDrive.setPower(NEGX);
+                            rightFrontDrive.setPower(POSX);
+                            rightBackDrive.setPower(POSX);
+                        }
+
+                        if (x > MIN_TARGET_X  && x < MAX_TARGET_X) {
+                            leftFrontDrive.setPower(0);
+                            //leftBackDrive.setPower(0);
+                            rightFrontDrive.setPower(0);
+                            //rightBackDrive.setPower(0);
+                            if (y < MIN_TARGET_Y) {
+                                leftBackDrive.setPower(POSY);
+                                rightBackDrive.setPower(POSY);
+                            }
+                            if (y > MAX_TARGET_Y) {
+                                leftBackDrive.setPower(NEGY1);
+                                rightBackDrive.setPower(NEGY1);
+                            }
+                        }
+
+                        if (blocks[i].id == 2 && x > MAX_TARGET_X) {
+                            leftFrontDrive.setPower(POSX1);
+                            leftBackDrive.setPower(POSX1);
+                            rightFrontDrive.setPower(NEGX1);
+                            rightBackDrive.setPower(NEGX1);
+                        }
+
                         // Calculate motor powers based on x and y positions
-                        double motorPowerX = (x - (MIN_TARGET_X + MAX_TARGET_X) / 2) / ((MAX_TARGET_X - MIN_TARGET_X) / 2);
+                        /*double motorPowerX = (x - (MIN_TARGET_X + MAX_TARGET_X) / 2) / ((MAX_TARGET_X - MIN_TARGET_X) / 2);
                         double motorPowerY = (y - (MIN_TARGET_Y + MAX_TARGET_Y) / 2) / ((MAX_TARGET_Y - MIN_TARGET_Y) / 2);
 
                         // Adjust motor powers based on X and Y offsets
@@ -89,7 +129,7 @@ public class Other_Auto_Test_DO_NOT_TOUCH extends LinearOpMode {
                         double leftBackPower = motorPowerY + motorPowerX;  // Move forward/backward and rotate
                         double rightBackPower = motorPowerY - motorPowerX; // Move forward/backward and rotate
 
-                        // Scale power to limit the max motor power
+                        // Scale power to limit the max motor power to 0.5
                         leftFrontPower = Math.max(Math.min(leftFrontPower, 0.5), -0.5);
                         rightFrontPower = Math.max(Math.min(rightFrontPower, 0.5), -0.5);
                         leftBackPower = Math.max(Math.min(leftBackPower, 0.5), -0.5);
@@ -99,7 +139,7 @@ public class Other_Auto_Test_DO_NOT_TOUCH extends LinearOpMode {
                         leftFrontDrive.setPower(leftFrontPower);
                         leftBackDrive.setPower(leftBackPower);
                         rightFrontDrive.setPower(rightFrontPower);
-                        rightBackDrive.setPower(rightBackPower);
+                        rightBackDrive.setPower(rightBackPower);*/
                     }
                 }
 
