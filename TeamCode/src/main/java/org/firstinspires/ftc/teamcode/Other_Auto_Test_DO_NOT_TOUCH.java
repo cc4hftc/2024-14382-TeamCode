@@ -20,10 +20,10 @@ public class Other_Auto_Test_DO_NOT_TOUCH extends LinearOpMode {
     private DcMotor rightBackDrive;
 
     // Define target area boundaries
-    private final int MIN_TARGET_X = 125;
-    private final int MAX_TARGET_X = 195;
-    private final int MIN_TARGET_Y = 140;
-    private final int MAX_TARGET_Y = 170;
+    private final int MIN_TARGET_X = 135;
+    private final int MAX_TARGET_X = 205;
+    private final int MIN_TARGET_Y = 130;
+    private final int MAX_TARGET_Y = 160;
 
     /** @noinspection ForLoopReplaceableByForEach*/
     @Override
@@ -75,7 +75,6 @@ public class Other_Auto_Test_DO_NOT_TOUCH extends LinearOpMode {
                     telemetry.addData("Block", blocks[i].toString());
                     int x = blocks[i].x;
                     int y = blocks[i].y;
-                    //Positon vars
                     double POSX = 0.25 - (x * 0.002);
                     double NEGX = -(0.25 - (x * 0.002));
                     double POSX1 = 0.25 - (320-x)*0.002;
