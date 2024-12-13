@@ -4,8 +4,9 @@ import com.qualcomm.hardware.dfrobot.HuskyLens;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 
-/** @noinspection FieldCanBeLocal, IntegerDivisionInFloatingPointContext , ForLoopReplaceableByForEach */
+/** @noinspection ALL */
 @Autonomous
 public class Other_Auto_Test_DO_NOT_TOUCH extends LinearOpMode {
 
@@ -18,7 +19,8 @@ public class Other_Auto_Test_DO_NOT_TOUCH extends LinearOpMode {
     private DcMotor leftBackDrive;
     private DcMotor rightFrontDrive;
     private DcMotor rightBackDrive;
-
+    DcMotorEx armMotor = null;
+    DcMotorEx otherArmMotor = null;
     // Define target area boundaries
     private final int MIN_TARGET_X = 135;
     private final int MAX_TARGET_X = 205;
@@ -34,12 +36,20 @@ public class Other_Auto_Test_DO_NOT_TOUCH extends LinearOpMode {
         leftBackDrive = hardwareMap.get(DcMotor.class, "left_back_drive");
         rightFrontDrive = hardwareMap.get(DcMotor.class, "right_front_drive");
         rightBackDrive = hardwareMap.get(DcMotor.class, "right_back_drive");
+        armMotor = hardwareMap.get(DcMotorEx.class, "arm_motor");               // Port 2
+        otherArmMotor = hardwareMap.get(DcMotorEx.class, "arm_motor2");         // Port 1
 
         // Set initial motor directions
         leftFrontDrive.setDirection(DcMotor.Direction.REVERSE);                         // Back
         leftBackDrive.setDirection(DcMotor.Direction.REVERSE);                          // Left
         rightFrontDrive.setDirection(DcMotor.Direction.FORWARD);                        // Front
         rightBackDrive.setDirection(DcMotor.Direction.FORWARD);                         // Right
+        armMotor.setDirection(DcMotorEx.Direction.FORWARD);
+        otherArmMotor.setDirection(DcMotorEx.Direction.REVERSE);
+        otherArmMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        otherArmMotor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        armMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        armMotor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
 
         // Communicate with the HuskyLens sensor
         if (!huskyLens.knock()) {
