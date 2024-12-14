@@ -138,6 +138,17 @@ public class Other_Auto_Test_DO_NOT_TOUCH extends LinearOpMode {
                             rightFrontDrive.setPower(NEGX1);
                             rightBackDrive.setPower(NEGX1);
                         }
+                        if (x >= MIN_TARGET_X && x <= MAX_TARGET_X && y >= MIN_TARGET_Y && y <= MAX_TARGET_Y) {
+                            sleep(500);
+                            wrist.setPosition(0.1);
+                            claw.setPosition(0.075);
+                            other_claw.setPosition(0.075);
+                            sleep(500);
+                            claw.setPosition(0.1775);
+                            other_claw.setPosition(0.1775);
+                            sleep(250);
+                            wrist.setPosition(0);
+                        }
 
                         // Calculate motor powers based on x and y positions
                         /*double motorPowerX = (x - (MIN_TARGET_X + MAX_TARGET_X) / 2) / ((MAX_TARGET_X - MIN_TARGET_X) / 2);
