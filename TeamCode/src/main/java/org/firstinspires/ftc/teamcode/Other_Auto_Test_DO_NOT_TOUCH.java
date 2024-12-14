@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.Servo;
 
 /** @noinspection ALL */
 @Autonomous
@@ -21,6 +22,9 @@ public class Other_Auto_Test_DO_NOT_TOUCH extends LinearOpMode {
     private DcMotor rightBackDrive;
     DcMotorEx armMotor = null;
     DcMotorEx otherArmMotor = null;
+    Servo claw = null; // Claw servo reference
+    Servo other_claw = null; // Claw servo reference
+    Servo wrist = null;
     // Define target area boundaries
     private final int MIN_TARGET_X = 135;
     private final int MAX_TARGET_X = 205;
@@ -38,6 +42,10 @@ public class Other_Auto_Test_DO_NOT_TOUCH extends LinearOpMode {
         rightBackDrive = hardwareMap.get(DcMotor.class, "right_back_drive");
         armMotor = hardwareMap.get(DcMotorEx.class, "arm_motor");               // Port 2
         otherArmMotor = hardwareMap.get(DcMotorEx.class, "arm_motor2");         // Port 1
+        claw = hardwareMap.get(Servo.class, "clawServo");                       // Port 1
+        other_claw = hardwareMap.get(Servo.class, "other_clawServo");
+        wrist = hardwareMap.get(Servo.class, "wristServo");
+
 
         // Set initial motor directions
         leftFrontDrive.setDirection(DcMotor.Direction.REVERSE);                         // Back
@@ -46,6 +54,8 @@ public class Other_Auto_Test_DO_NOT_TOUCH extends LinearOpMode {
         rightBackDrive.setDirection(DcMotor.Direction.FORWARD);                         // Right
         armMotor.setDirection(DcMotorEx.Direction.FORWARD);
         otherArmMotor.setDirection(DcMotorEx.Direction.REVERSE);
+        claw.setDirection(Servo.Direction.FORWARD);
+        other_claw.setDirection(Servo.Direction.REVERSE);
         otherArmMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
         otherArmMotor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
         armMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
