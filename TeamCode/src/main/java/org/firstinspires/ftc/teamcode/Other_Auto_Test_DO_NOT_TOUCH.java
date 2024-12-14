@@ -61,6 +61,8 @@ public class Other_Auto_Test_DO_NOT_TOUCH extends LinearOpMode {
         armMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
         armMotor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
 
+
+
         // Communicate with the HuskyLens sensor
         if (!huskyLens.knock()) {
             telemetry.addData(">>", "Problem communicating with " + huskyLens.getDeviceName());
@@ -140,6 +142,7 @@ public class Other_Auto_Test_DO_NOT_TOUCH extends LinearOpMode {
                         }
                         if (x >= MIN_TARGET_X && x <= MAX_TARGET_X && y >= MIN_TARGET_Y && y <= MAX_TARGET_Y) {
                             sleep(500);
+                            huskyLens.close();
                             wrist.setPosition(0.1);
                             claw.setPosition(0.075);
                             other_claw.setPosition(0.075);
