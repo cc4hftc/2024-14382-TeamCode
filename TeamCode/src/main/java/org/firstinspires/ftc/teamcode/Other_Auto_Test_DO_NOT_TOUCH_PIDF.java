@@ -186,6 +186,8 @@ public class Other_Auto_Test_DO_NOT_TOUCH_PIDF extends LinearOpMode {
             // PID control for arm motors if active
             if (pidControlActive) {
                 pidControl();  // Hold the arm in position using PID
+            } else {
+                //Do nothig
             }
 
             telemetry.addData("PID Control", "Arm1: %d, Arm2: %d", armMotor.getCurrentPosition(), otherArmMotor.getCurrentPosition());
