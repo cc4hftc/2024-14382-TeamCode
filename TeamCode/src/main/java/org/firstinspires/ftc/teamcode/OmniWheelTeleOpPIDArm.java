@@ -159,10 +159,10 @@ public class OmniWheelTeleOpPIDArm extends LinearOpMode {
                 winch.setPower(0);
             }
 
-            // Stop the right trigger if tick exceeds 450
-            if (tick >= 450) {
+            // Stop the right trigger if tick exceeds 410
+            if (tick >= 410) {
                 rightTriggerEnabled = false;
-            } else if (tick >= 1 && tick <= 449) {
+            } else if (tick >= 1 && tick <= 409) {
                 rightTriggerEnabled = true;
                 leftTriggerEnabled = true;
             } else if (tick <= 0) {
@@ -177,6 +177,11 @@ public class OmniWheelTeleOpPIDArm extends LinearOpMode {
             //}
             armMotor.setTargetPosition(otherArmMotor.getTargetPosition());
             //WRIST CODE//WRIST CODE//WRIST CODE//WRIST CODE//WRIST CODE//WRIST CODE//WRIST CODE//
+            if (!gamepad1.x) {
+                if ((newWrist > 0.7 && newWrist < 0.9) && (gamepad1.left_stick_y != 0 || gamepad1.right_stick_x != 0)){
+                    newWrist = 0.6;
+                }
+            }
 
             //Set the wrist target position
             newWrist += (gamepad2.right_stick_y/150);
@@ -200,6 +205,7 @@ public class OmniWheelTeleOpPIDArm extends LinearOpMode {
             //Set the claw servo position
             claw.setPosition(newClaw);
             other_claw.setPosition(newClaw);
+
 
 
             //DEBUG CODE//DEBUG CODE//DEBUG CODE//DEBUG CODE//DEBUG CODE//DEBUG CODE//DEBUG CODE//
