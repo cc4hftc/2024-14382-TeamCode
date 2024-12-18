@@ -160,9 +160,9 @@ public class OmniWheelTeleOpPIDArm extends LinearOpMode {
             }
 
             // Stop the right trigger if tick exceeds 410
-            if (tick >= 410) {
+            if (tick >= 350) {
                 rightTriggerEnabled = false;
-            } else if (tick >= 1 && tick <= 409) {
+            } else if (tick >= 1 && tick <= 349) {
                 rightTriggerEnabled = true;
                 leftTriggerEnabled = true;
             } else if (tick <= 0) {
