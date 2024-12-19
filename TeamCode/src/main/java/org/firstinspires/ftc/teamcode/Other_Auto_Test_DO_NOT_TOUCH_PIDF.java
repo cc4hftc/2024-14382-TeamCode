@@ -38,11 +38,12 @@ public class Other_Auto_Test_DO_NOT_TOUCH_PIDF extends LinearOpMode {
     // Define target area boundaries
     private final int MIN_TARGET_X = 135;
     private final int MAX_TARGET_X = 205;
-    private final int MIN_TARGET_Y = 130;
-    private final int MAX_TARGET_Y = 160;
+    private final int MIN_TARGET_Y = 120;
+    private final int MAX_TARGET_Y = 150;
 
     // Flag to control PID activation
     private boolean pidControlActive = true;
+
 
     @Override
     public void runOpMode() {
@@ -72,7 +73,7 @@ public class Other_Auto_Test_DO_NOT_TOUCH_PIDF extends LinearOpMode {
         otherArmMotor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
         armMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
         armMotor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
-
+        huskyLens.selectAlgorithm(HuskyLens.Algorithm.COLOR_RECOGNITION);
         claw.setPosition(0.1775);
         other_claw.setPosition(0.1775);
 
@@ -167,16 +168,17 @@ public class Other_Auto_Test_DO_NOT_TOUCH_PIDF extends LinearOpMode {
                         // Perform action once object is in the target zone
                         if (x >= MIN_TARGET_X && x <= MAX_TARGET_X && y >= MIN_TARGET_Y && y <= MAX_TARGET_Y) {
                             sleep(500);
-                            huskyLens.selectAlgorithm(HuskyLens.Algorithm.TAG_RECOGNITION);
-                            // Disable PID control after switching to tag mode
                             pidControlActive = false;
-                            wrist.setPosition(0.1);
+                            huskyLens.selectAlgorithm(HuskyLens.Algorithm.TAG_RECOGNITION);
+                            sleep(250);
+                            wrist.setPosition(0.75);
+                            sleep(250);
                             claw.setPosition(0.075);
                             other_claw.setPosition(0.075);
                             sleep(500);
                             claw.setPosition(0.1775);
                             other_claw.setPosition(0.1775);
-                            sleep(250);
+                            sleep(750);
                             wrist.setPosition(0);
                         }
                     }
@@ -184,7 +186,7 @@ public class Other_Auto_Test_DO_NOT_TOUCH_PIDF extends LinearOpMode {
             }
 
             // PID control for arm motors if active
-            if (pidControlActive) {
+            if (pidControlActive == true) {
                 pidControl();  // Hold the arm in position using PID
             } else {
                 //Do nothig
@@ -207,8 +209,8 @@ public class Other_Auto_Test_DO_NOT_TOUCH_PIDF extends LinearOpMode {
         double otherPower = kP * otherError + kI * integral + kD * derivative + kF;
 
         // Apply mirrored power to both motors to hold position
-        armMotor.setPower(power*1.1);
-        otherArmMotor.setPower(otherPower*1.1);
+        armMotor.setPower(power*1.3);
+        otherArmMotor.setPower(otherPower*1.3);
 
         lastError = error;
         otherlastError = otherError;

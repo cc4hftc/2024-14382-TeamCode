@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 @TeleOp
-public class OmniWheelTeleOpPIDArm extends LinearOpMode {
+public class TeleOPMain extends LinearOpMode {
 
     // Drive motors
     DcMotor leftFrontDrive = null;
