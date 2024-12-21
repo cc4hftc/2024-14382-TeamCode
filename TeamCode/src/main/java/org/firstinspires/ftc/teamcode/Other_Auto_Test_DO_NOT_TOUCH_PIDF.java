@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 /** @noinspection ALL*/
 @Autonomous
@@ -27,6 +28,8 @@ public class Other_Auto_Test_DO_NOT_TOUCH_PIDF extends LinearOpMode {
     Servo wrist = null;
 
     // PID control constants for the arm
+    private double otherTargetPosition;
+    private double targetPosition;
     private double kP = 0.0001; //0.001
     private double kI = 0.00;
     private double kD = 0.000;
@@ -34,12 +37,13 @@ public class Other_Auto_Test_DO_NOT_TOUCH_PIDF extends LinearOpMode {
     private double integral = 0;
     private double lastError = 0;
     private double otherlastError = 0;
+    private ElapsedTime timer = new ElapsedTime();
 
     // Define target area boundaries
     private final int MIN_TARGET_X = 135;
     private final int MAX_TARGET_X = 205;
     private final int MIN_TARGET_Y = 120;
-    private final int MAX_TARGET_Y = 150;
+    private final int MAX_TARGET_Y = 135;
 
     // Flag to control PID activation
     private boolean pidControlActive = true;
@@ -89,7 +93,7 @@ public class Other_Auto_Test_DO_NOT_TOUCH_PIDF extends LinearOpMode {
         huskyLens.selectAlgorithm(HuskyLens.Algorithm.COLOR_RECOGNITION);
         telemetry.update();
         waitForStart();
-
+        timer.reset();
         // Set the initial arm positions (move armMotor to 76 and otherArmMotor to 88)
         armMotor.setTargetPosition(76);
         otherArmMotor.setTargetPosition(88);
@@ -171,11 +175,11 @@ public class Other_Auto_Test_DO_NOT_TOUCH_PIDF extends LinearOpMode {
                             pidControlActive = false;
                             huskyLens.selectAlgorithm(HuskyLens.Algorithm.TAG_RECOGNITION);
                             sleep(250);
-                            wrist.setPosition(0.75);
+                            wrist.setPosition(0.80);
                             sleep(250);
                             claw.setPosition(0.075);
                             other_claw.setPosition(0.075);
-                            sleep(500);
+                            sleep(1500);
                             claw.setPosition(0.1775);
                             other_claw.setPosition(0.1775);
                             sleep(750);
@@ -186,39 +190,36 @@ public class Other_Auto_Test_DO_NOT_TOUCH_PIDF extends LinearOpMode {
             }
 
             // PID control for arm motors if active
-            if (pidControlActive == true) {
-                pidControl();  // Hold the arm in position using PID
-            } else {
-                //Do nothig
+            if (pidControlActive) {
+                pidControl();  // Hold the arm in position using PIDF
             }
-
-            telemetry.addData("PID Control", "Arm1: %d, Arm2: %d", armMotor.getCurrentPosition(), otherArmMotor.getCurrentPosition());
-            telemetry.update();
         }
     }
 
     private void pidControl() {
         double otherCurrentPosition = otherArmMotor.getCurrentPosition();
         double currentPosition = armMotor.getCurrentPosition();
-        double otherError = 108 - otherCurrentPosition;  // Target position for other arm motor
-        double error = 96 - currentPosition;  // Target position for arm motor
-        double deltaTime = getRuntime();
+        double otherError = otherTargetPosition - otherCurrentPosition;
+        double error = targetPosition - currentPosition;
+        double deltaTime = timer.seconds();
         integral += otherError * deltaTime;
         double derivative = (otherError - lastError) / deltaTime;
         double power = kP * error + kI * integral + kD * derivative + kF;
         double otherPower = kP * otherError + kI * integral + kD * derivative + kF;
 
-        // Apply mirrored power to both motors to hold position
-        armMotor.setPower(power*1.3);
-        otherArmMotor.setPower(otherPower*1.3);
+        // Apply mirrored power to both motors
+        armMotor.setPower(power);
+        otherArmMotor.setPower(otherPower);
 
         lastError = error;
         otherlastError = otherError;
+        timer.reset();
     }
 
     private void resetPID() {
         integral = 0;
         lastError = 0;
         otherlastError = 0;
+        timer.reset();
     }
 }

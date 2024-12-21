@@ -133,6 +133,7 @@ public class TeleOPMain extends LinearOpMode {
                 // Right trigger is pressed (move arm upwards)
                 armMotor.setPower(armPower / 12);
                 otherArmMotor.setPower(armPower / 12);
+                // Get arm position
                 otherTargetPosition = otherArmMotor.getCurrentPosition();
                 targetPosition = armMotor.getCurrentPosition();
                 resetPID();
@@ -140,6 +141,7 @@ public class TeleOPMain extends LinearOpMode {
                 // Left trigger is pressed (move arm downwards)
                 armMotor.setPower(armPower / 12);
                 otherArmMotor.setPower(armPower / 12);
+                // Get arm position
                 otherTargetPosition = otherArmMotor.getCurrentPosition();
                 targetPosition = armMotor.getCurrentPosition();
                 resetPID();
@@ -170,13 +172,11 @@ public class TeleOPMain extends LinearOpMode {
                 rightTriggerEnabled = true;
             }
 
-            //if (Armpos == otherArmpos) {
-            // Do nothing
-            //} else {
-            //armMotor.setTargetPosition(otherArmpos);
-            //}
             armMotor.setTargetPosition(otherArmMotor.getTargetPosition());
+
+
             //WRIST CODE//WRIST CODE//WRIST CODE//WRIST CODE//WRIST CODE//WRIST CODE//WRIST CODE//
+
             if (!gamepad1.x) {
                 if ((newWrist > 0.7 && newWrist < 0.9) && (gamepad1.left_stick_y != 0 || gamepad1.right_stick_x != 0)){
                     newWrist = 0.6;
