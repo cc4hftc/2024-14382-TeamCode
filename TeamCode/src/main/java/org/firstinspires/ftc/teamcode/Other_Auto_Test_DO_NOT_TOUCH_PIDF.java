@@ -30,10 +30,10 @@ public class Other_Auto_Test_DO_NOT_TOUCH_PIDF extends LinearOpMode {
     // PID control constants for the arm
     private double otherTargetPosition;
     private double targetPosition;
-    private double kP = 0.0001; //0.001
+    private double kP = 0.01; //0.001
     private double kI = 0.00;
     private double kD = 0.000;
-    private double kF = 0.0025;
+    private double kF = 0.01;
     private double integral = 0;
     private double lastError = 0;
     private double otherlastError = 0;
@@ -42,12 +42,13 @@ public class Other_Auto_Test_DO_NOT_TOUCH_PIDF extends LinearOpMode {
     // Define target area boundaries
     private final int MIN_TARGET_X = 135;
     private final int MAX_TARGET_X = 205;
-    private final int MIN_TARGET_Y = 120;
-    private final int MAX_TARGET_Y = 135;
+    private final int MIN_TARGET_Y = 115;
+    private final int MAX_TARGET_Y = 130;
 
     // Flag to control PID activation
-    private boolean pidControlActive = true;
+    private boolean pidControlActive = false;
 
+    int limit = 380;
 
     @Override
     public void runOpMode() {
@@ -80,7 +81,9 @@ public class Other_Auto_Test_DO_NOT_TOUCH_PIDF extends LinearOpMode {
         huskyLens.selectAlgorithm(HuskyLens.Algorithm.COLOR_RECOGNITION);
         claw.setPosition(0.1775);
         other_claw.setPosition(0.1775);
-
+        //Move before starting to try to remove slack
+        //armMotor.setPower(0.0025);
+        //otherArmMotor.setPower(0.0025);
         // Initialize HuskyLens
         if (!huskyLens.knock()) {
             telemetry.addData(">>", "Problem communicating with " + huskyLens.getDeviceName());
@@ -93,26 +96,34 @@ public class Other_Auto_Test_DO_NOT_TOUCH_PIDF extends LinearOpMode {
         huskyLens.selectAlgorithm(HuskyLens.Algorithm.COLOR_RECOGNITION);
         telemetry.update();
         waitForStart();
+        armMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        armMotor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
         timer.reset();
+
         // Set the initial arm positions (move armMotor to 76 and otherArmMotor to 88)
-        armMotor.setTargetPosition(76);
-        otherArmMotor.setTargetPosition(88);
+        armMotor.setTargetPosition(limit);
+        otherArmMotor.setTargetPosition(limit);
         armMotor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
         otherArmMotor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
 
         // Set initial power to move the arm to target positions
-        armMotor.setPower(0.5);  // Adjust power as needed for the arm to reach the target
-        otherArmMotor.setPower(0.5);  // Adjust power as needed for the arm to reach the target
+        //armMotor.setPower(0.25);  // Adjust power as needed for the arm to reach the target
+        //otherArmMotor.setPower(0.25);  // Adjust power as needed for the arm to reach the target
 
         // Wait until the arm motors reach the target position
-        while (opModeIsActive() && (armMotor.isBusy() || otherArmMotor.isBusy())) {
+        /*while (opModeIsActive() && (armMotor.isBusy() || otherArmMotor.isBusy())) {
             telemetry.addData("Arm Target", "Arm1: %d, Arm2: %d", armMotor.getTargetPosition(), otherArmMotor.getTargetPosition());
             telemetry.addData("Arm Position", "Arm1: %d, Arm2: %d", armMotor.getCurrentPosition(), otherArmMotor.getCurrentPosition());
+            telemetry.addData("Tick", otherArmMotor.getCurrentPosition());
             telemetry.update();
-        }
+        }*/
 
         // Once the arm reaches the target positions, apply PID control to hold the position
         resetPID();
+
+        // Set target positions to current positions to maintain them
+        targetPosition = armMotor.getCurrentPosition();
+        otherTargetPosition = otherArmMotor.getCurrentPosition();
 
         // Rate-limited HuskyLens data reading and motor control loop
         double lastTime = getRuntime();
@@ -141,6 +152,18 @@ public class Other_Auto_Test_DO_NOT_TOUCH_PIDF extends LinearOpMode {
                     double POSY = 1 - (y * 0.005);
                     double NEGY = -(1 - (y * 0.0064));
 
+                    double tick = armMotor.getCurrentPosition();
+
+                    /*if (tick < limit) {
+                        armMotor.setPower(0.1);
+                        otherArmMotor.setPower(0.1);
+                        pidControlActive = false;
+                    } else if (tick > limit) {
+                        armMotor.setPower(0);
+                        otherArmMotor.setPower(0);
+                        pidControlActive = true;
+                    }*/
+
                     // Control robot movement based on detected object position
                     if (blocks[i].id == 2) {
                         // Move robot towards target based on X and Y positions
@@ -150,10 +173,10 @@ public class Other_Auto_Test_DO_NOT_TOUCH_PIDF extends LinearOpMode {
                             rightFrontDrive.setPower(POSX);
                             rightBackDrive.setPower(POSX);
                         } else if (x > MAX_TARGET_X) {
-                            leftFrontDrive.setPower(POSX);
-                            leftBackDrive.setPower(POSX);
-                            rightFrontDrive.setPower(NEGX);
-                            rightBackDrive.setPower(NEGX);
+                            leftFrontDrive.setPower(NEGX);
+                            leftBackDrive.setPower(NEGX);
+                            rightFrontDrive.setPower(POSX);
+                            rightBackDrive.setPower(POSX);
                         } else {
                             leftFrontDrive.setPower(0);
                             leftBackDrive.setPower(0);
@@ -175,7 +198,7 @@ public class Other_Auto_Test_DO_NOT_TOUCH_PIDF extends LinearOpMode {
                             pidControlActive = false;
                             huskyLens.selectAlgorithm(HuskyLens.Algorithm.TAG_RECOGNITION);
                             sleep(250);
-                            wrist.setPosition(0.80);
+                            wrist.setPosition(0.85);
                             sleep(250);
                             claw.setPosition(0.075);
                             other_claw.setPosition(0.075);
@@ -207,7 +230,7 @@ public class Other_Auto_Test_DO_NOT_TOUCH_PIDF extends LinearOpMode {
         double power = kP * error + kI * integral + kD * derivative + kF;
         double otherPower = kP * otherError + kI * integral + kD * derivative + kF;
 
-        // Apply mirrored power to both motors
+        // Apply mirrored power to both motors to hold position
         armMotor.setPower(power);
         otherArmMotor.setPower(otherPower);
 
@@ -221,5 +244,4 @@ public class Other_Auto_Test_DO_NOT_TOUCH_PIDF extends LinearOpMode {
         lastError = 0;
         otherlastError = 0;
         timer.reset();
-    }
-}
+    }}
