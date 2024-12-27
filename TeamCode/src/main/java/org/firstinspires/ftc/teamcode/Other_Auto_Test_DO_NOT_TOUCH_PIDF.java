@@ -42,8 +42,8 @@ public class Other_Auto_Test_DO_NOT_TOUCH_PIDF extends LinearOpMode {
     // Define target area boundaries
     private final int MIN_TARGET_X = 135;
     private final int MAX_TARGET_X = 205;
-    private final int MIN_TARGET_Y = 115;
-    private final int MAX_TARGET_Y = 130;
+    private final int MIN_TARGET_Y = 130;
+    private final int MAX_TARGET_Y = 135;
 
     // Flag to control PID activation
     private boolean pidControlActive = false;
@@ -168,15 +168,15 @@ public class Other_Auto_Test_DO_NOT_TOUCH_PIDF extends LinearOpMode {
                     if (blocks[i].id == 2) {
                         // Move robot towards target based on X and Y positions
                         if (x < MIN_TARGET_X) {
-                            leftFrontDrive.setPower(NEGX);
-                            leftBackDrive.setPower(NEGX);
-                            rightFrontDrive.setPower(POSX);
-                            rightBackDrive.setPower(POSX);
+                            leftFrontDrive.setPower(-0.4);
+                            leftBackDrive.setPower(-0.4);
+                            rightFrontDrive.setPower(0.4);
+                            rightBackDrive.setPower(0.4);
                         } else if (x > MAX_TARGET_X) {
-                            leftFrontDrive.setPower(NEGX);
-                            leftBackDrive.setPower(NEGX);
-                            rightFrontDrive.setPower(POSX);
-                            rightBackDrive.setPower(POSX);
+                            leftFrontDrive.setPower(0.4);
+                            leftBackDrive.setPower(0.4);
+                            rightFrontDrive.setPower(-0.4);
+                            rightBackDrive.setPower(-0.4);
                         } else {
                             leftFrontDrive.setPower(0);
                             leftBackDrive.setPower(0);
@@ -185,11 +185,16 @@ public class Other_Auto_Test_DO_NOT_TOUCH_PIDF extends LinearOpMode {
                         }
 
                         if (y < MIN_TARGET_Y) {
-                            leftBackDrive.setPower(POSY);
-                            rightBackDrive.setPower(POSY);
+                            leftBackDrive.setPower(0.25);
+                            rightBackDrive.setPower(0.25);
                         } else if (y > MAX_TARGET_Y) {
-                            leftBackDrive.setPower(NEGY);
-                            rightBackDrive.setPower(NEGY);
+                            leftBackDrive.setPower(-0.25);
+                            rightBackDrive.setPower(-0.25);
+                        } else {
+                            leftFrontDrive.setPower(0);
+                            leftBackDrive.setPower(0);
+                            rightFrontDrive.setPower(0);
+                            rightBackDrive.setPower(0);
                         }
 
                         // Perform action once object is in the target zone
@@ -200,7 +205,7 @@ public class Other_Auto_Test_DO_NOT_TOUCH_PIDF extends LinearOpMode {
                             sleep(250);
                             wrist.setPosition(0.85);
                             sleep(250);
-                            claw.setPosition(0.075);
+                            claw.setPosition(0.065);
                             other_claw.setPosition(0.075);
                             sleep(1500);
                             claw.setPosition(0.1775);
