@@ -133,7 +133,6 @@ public class TeleOPMain extends LinearOpMode {
                 // Right trigger is pressed (move arm upwards)
                 armMotor.setPower(armPower / 12);
                 otherArmMotor.setPower(armPower / 12);
-                // Get arm position
                 otherTargetPosition = otherArmMotor.getCurrentPosition();
                 targetPosition = armMotor.getCurrentPosition();
                 resetPID();
@@ -141,7 +140,6 @@ public class TeleOPMain extends LinearOpMode {
                 // Left trigger is pressed (move arm downwards)
                 armMotor.setPower(armPower / 12);
                 otherArmMotor.setPower(armPower / 12);
-                // Get arm position
                 otherTargetPosition = otherArmMotor.getCurrentPosition();
                 targetPosition = armMotor.getCurrentPosition();
                 resetPID();
@@ -162,9 +160,9 @@ public class TeleOPMain extends LinearOpMode {
             }
 
             // Stop the right trigger if tick exceeds 410
-            if (tick >= 350) {
+            if (tick >= 375) {
                 rightTriggerEnabled = false;
-            } else if (tick >= 1 && tick <= 349) {
+            } else if (tick >= 1 && tick <= 374) {
                 rightTriggerEnabled = true;
                 leftTriggerEnabled = true;
             } else if (tick <= 0) {
@@ -172,11 +170,13 @@ public class TeleOPMain extends LinearOpMode {
                 rightTriggerEnabled = true;
             }
 
+            //if (Armpos == otherArmpos) {
+            // Do nothing
+            //} else {
+            //armMotor.setTargetPosition(otherArmpos);
+            //}
             armMotor.setTargetPosition(otherArmMotor.getTargetPosition());
-
-
             //WRIST CODE//WRIST CODE//WRIST CODE//WRIST CODE//WRIST CODE//WRIST CODE//WRIST CODE//
-
             if (!gamepad1.x) {
                 if ((newWrist > 0.7 && newWrist < 0.9) && (gamepad1.left_stick_y != 0 || gamepad1.right_stick_x != 0)){
                     newWrist = 0.6;
@@ -187,7 +187,7 @@ public class TeleOPMain extends LinearOpMode {
             newWrist += (gamepad2.right_stick_y/150);
 
             //Set the min and max wrist positions
-            newWrist = Math.max(0, Math.min(0.8, newWrist));
+            newWrist = Math.max(0, Math.min(0.85, newWrist));
 
             //Set the wrist servo position
             wrist.setPosition(newWrist);
