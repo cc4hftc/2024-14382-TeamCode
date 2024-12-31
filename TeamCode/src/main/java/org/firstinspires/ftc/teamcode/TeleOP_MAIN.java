@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 @TeleOp
-public class TeleOPMain extends LinearOpMode {
+public class TeleOP_MAIN extends LinearOpMode {
 
     // Drive motors
     DcMotor leftFrontDrive = null;
@@ -151,12 +151,18 @@ public class TeleOPMain extends LinearOpMode {
 
             double tick = otherArmMotor.getCurrentPosition();
 
-            if (gamepad1.a){
+            if (gamepad1.a) {
                 winch.setPower(0.5);
             } else if (gamepad1.b) {
                 winch.setPower(-0.5);
             } else {
                 winch.setPower(0);
+            }
+
+            if (gamepad1.y) {
+                armMotor.setPower(0);
+                otherArmMotor.setPower(0);
+                resetPID();
             }
 
             // Stop the right trigger if tick exceeds 410
@@ -168,19 +174,6 @@ public class TeleOPMain extends LinearOpMode {
             } else if (tick <= 0) {
                 leftTriggerEnabled = false;
                 rightTriggerEnabled = true;
-            }
-
-            //if (Armpos == otherArmpos) {
-            // Do nothing
-            //} else {
-            //armMotor.setTargetPosition(otherArmpos);
-            //}
-            armMotor.setTargetPosition(otherArmMotor.getTargetPosition());
-            //WRIST CODE//WRIST CODE//WRIST CODE//WRIST CODE//WRIST CODE//WRIST CODE//WRIST CODE//
-            if (!gamepad1.x) {
-                if ((newWrist > 0.7 && newWrist < 0.9) && (gamepad1.left_stick_y != 0 || gamepad1.right_stick_x != 0)){
-                    newWrist = 0.6;
-                }
             }
 
             //Set the wrist target position
