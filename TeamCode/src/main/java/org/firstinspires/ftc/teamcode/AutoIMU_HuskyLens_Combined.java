@@ -291,7 +291,7 @@ public class AutoIMU_HuskyLens_Combined extends LinearOpMode {
                             sleep(250);
 
                             // Example wrist/claw sequence
-                            wrist.setPosition(0.85);
+                            wrist.setPosition(0.6);
                             sleep(250);
                             claw.setPosition(0.065);
                             other_claw.setPosition(0.075);
