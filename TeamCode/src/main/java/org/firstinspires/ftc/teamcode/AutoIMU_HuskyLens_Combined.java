@@ -73,7 +73,7 @@ public class AutoIMU_HuskyLens_Combined extends LinearOpMode {
     // -------------------------------
     // Arm limit example
     // -------------------------------
-    int limit = 380;
+    //int limit = 380;
 
     // -------------------------------
     // For rate limiting HuskyLens read
@@ -111,8 +111,8 @@ public class AutoIMU_HuskyLens_Combined extends LinearOpMode {
         wrist         = hardwareMap.get(Servo.class, "wristServo");
 
         // Arm motor directions
-        armMotor.setDirection(DcMotorEx.Direction.FORWARD);
-        otherArmMotor.setDirection(DcMotorEx.Direction.REVERSE);
+        //armMotor.setDirection(DcMotorEx.Direction.FORWARD);
+        //otherArmMotor.setDirection(DcMotorEx.Direction.REVERSE);
         claw.setDirection(Servo.Direction.FORWARD);
         other_claw.setDirection(Servo.Direction.REVERSE);
 
@@ -165,7 +165,7 @@ public class AutoIMU_HuskyLens_Combined extends LinearOpMode {
         }
 
         // MOVE FORWARD 1 unit using back motors
-        moveAlongYAxis(1);
+        moveAlongYAxis(1.3);
         // Return back motors to run_using_encoder
         leftBackDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightBackDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -176,7 +176,7 @@ public class AutoIMU_HuskyLens_Combined extends LinearOpMode {
         // SECOND TURN: +55 degrees (clockwise from new yaw)
         currentOrientation = imu.getRobotYawPitchRollAngles();
         currentYaw = normalizeYaw(currentOrientation.getYaw(AngleUnit.DEGREES));
-        targetYaw  = normalizeYaw(currentYaw + 55.0);
+        targetYaw  = normalizeYaw(currentYaw + 65.0);
 
         while (opModeIsActive()) {
             currentOrientation = imu.getRobotYawPitchRollAngles();
@@ -207,10 +207,10 @@ public class AutoIMU_HuskyLens_Combined extends LinearOpMode {
         timer.reset();
 
         // Move arms to initial position
-        armMotor.setTargetPosition(limit);
+        /*armMotor.setTargetPosition(limit);
         otherArmMotor.setTargetPosition(limit);
         armMotor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-        otherArmMotor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+        otherArmMotor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);*/
         // armMotor.setPower(0.25);       // If needed
         // otherArmMotor.setPower(0.25); // If needed
 
@@ -224,10 +224,10 @@ public class AutoIMU_HuskyLens_Combined extends LinearOpMode {
         */
 
         // Once the arms are at the limit, hold them with PID
-        resetPID();
+        /*resetPID();
         targetPosition = armMotor.getCurrentPosition();
         otherTargetPosition = otherArmMotor.getCurrentPosition();
-        pidControlActive = true; // We can keep them locked in place if desired
+        pidControlActive = true; // We can keep them locked in place if desired*/
 
         // Rate-limited HuskyLens loop
         double lastTime = getRuntime();
@@ -284,7 +284,7 @@ public class AutoIMU_HuskyLens_Combined extends LinearOpMode {
                         // Once we're in the target zone, do the claw action
                         if (x >= MIN_TARGET_X && x <= MAX_TARGET_X && y >= MIN_TARGET_Y && y <= MAX_TARGET_Y) {
                             sleep(500);
-                            pidControlActive = false; // If you want to turn off the arm-holding PID
+                            //pidControlActive = false; // If you want to turn off the arm-holding PID
 
                             // Switch to some other algorithm (optional)
                             huskyLens.selectAlgorithm(HuskyLens.Algorithm.TAG_RECOGNITION);
