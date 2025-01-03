@@ -38,7 +38,7 @@ public class TeleOP_MAIN extends LinearOpMode {
     private boolean leftTriggerEnabled = true;
 
     // Drive control constants
-    private static final double TURN_SPEED_FACTOR = 0.45;
+    private static final double TURN_SPEED_FACTOR = 0.35;
     private static final double ACCELERATION_RATE = 0.08; // Change in power per update
     private static final double strafe_speed = 0.8;
     private static final double SPEED_MULTIPLIER = 1; // Adjust this value to change speed
@@ -180,7 +180,7 @@ public class TeleOP_MAIN extends LinearOpMode {
             newWrist += (gamepad2.right_stick_y/150);
 
             //Set the min and max wrist positions
-            newWrist = Math.max(0, Math.min(0.85, newWrist));
+            newWrist = Math.max(0, Math.min(0.67, newWrist));
 
             //Set the wrist servo position
             wrist.setPosition(newWrist);
@@ -192,7 +192,7 @@ public class TeleOP_MAIN extends LinearOpMode {
             if (gamepad2.right_bumper) {  //Close
                 newClaw = 0.1775;
             } else if (gamepad2.left_bumper) {  //Open
-                newClaw = 0.075;
+                newClaw = 0.08;
             }
 
             //Set the claw servo position

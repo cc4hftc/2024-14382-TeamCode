@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.hardware.IMU;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 
+/** @noinspection ALL*/
 @Autonomous
 public class AutoIMU extends LinearOpMode {
     private DcMotor leftFrontDrive;
@@ -60,7 +61,7 @@ public class AutoIMU extends LinearOpMode {
             // Check if we have reached the target yaw
             if (Math.abs(currentYawNow - targetYaw) < 2.0) { // 2 degrees tolerance
                 // Stop the robot once the target yaw is reached
-                //stopMotors();
+                stopMotors();
                 telemetry.addData("Status", "Target yaw reached: %.2f degrees", targetYaw);
                 telemetry.update();
                 break;
@@ -88,7 +89,7 @@ public class AutoIMU extends LinearOpMode {
         rightFrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         // Sleep a bit to ensure motors fully stop
-        sleep(500);
+        sleep(50);
 
         // ------------------------------------------------------------------
         // SECOND TURN (Clockwise +60° from the NEW yaw)
@@ -99,7 +100,7 @@ public class AutoIMU extends LinearOpMode {
         currentYaw = normalizeYaw(currentYaw);
 
         // Calculate new targetYaw (clockwise from the robot's actual heading)
-        targetYaw = currentYaw + 60.0;
+        targetYaw = currentYaw + 55.0;
         targetYaw = normalizeYaw(targetYaw);
 
         // Rotate the robot until it reaches the new target yaw (clockwise)
@@ -114,7 +115,7 @@ public class AutoIMU extends LinearOpMode {
             // Check if we have reached the new target yaw
             if (Math.abs(currentYawNow - targetYaw) < 2.0) { // 2 degrees tolerance
                 // Stop the robot once the target yaw is reached
-                //stopMotors();
+                stopMotors();
                 telemetry.addData("Status", "Target yaw reached: %.2f degrees", targetYaw);
                 telemetry.update();
                 break;
@@ -130,7 +131,7 @@ public class AutoIMU extends LinearOpMode {
         }
 
         // Optionally stop all motors here if needed
-        //stopMotors();
+        stopMotors();
     }
 
     // ----------------------------------------------------------------------
@@ -206,10 +207,6 @@ public class AutoIMU extends LinearOpMode {
         // Stop the back motors after movement
         leftBackDrive.setPower(0);
         rightBackDrive.setPower(0);
-
-        // (No need to reset here if you do it outside, but you could do so if you prefer.)
-        // leftBackDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        // rightBackDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
     // ----------------------------------------------------------------------
