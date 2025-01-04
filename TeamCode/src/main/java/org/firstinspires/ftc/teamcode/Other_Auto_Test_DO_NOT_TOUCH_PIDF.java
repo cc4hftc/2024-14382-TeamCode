@@ -40,8 +40,8 @@ public class Other_Auto_Test_DO_NOT_TOUCH_PIDF extends LinearOpMode {
     private ElapsedTime timer = new ElapsedTime();
 
     // Define target area boundaries
-    private final int MIN_TARGET_X = 135;
-    private final int MAX_TARGET_X = 205;
+    private final int MIN_TARGET_X = 145;
+    private final int MAX_TARGET_X = 195;
     private final int MIN_TARGET_Y = 130;
     private final int MAX_TARGET_Y = 135;
 
