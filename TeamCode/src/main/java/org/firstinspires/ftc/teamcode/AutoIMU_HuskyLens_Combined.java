@@ -164,7 +164,7 @@ public class AutoIMU_HuskyLens_Combined extends LinearOpMode {
             telemetry.update();
         }
 
-        // MOVE FORWARD 1 unit using back motors
+        // MOVE FORWARD 1.3 unit using back motors
         moveAlongYAxis(1.3);
         // Return back motors to run_using_encoder
         leftBackDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -192,6 +192,7 @@ public class AutoIMU_HuskyLens_Combined extends LinearOpMode {
             telemetry.addData("Current Yaw", "%.2f", currentYawNow);
             telemetry.addData("Target Yaw", "%.2f", targetYaw);
             telemetry.update();
+            huskyLens.selectAlgorithm(HuskyLens.Algorithm.COLOR_RECOGNITION);
         }
 
         stopMotors();
@@ -307,6 +308,9 @@ public class AutoIMU_HuskyLens_Combined extends LinearOpMode {
                             thirdTurn();
                         }
                     }
+                    if (block.id == 6) {
+                        forthTurn();
+                    }
                 }
                 telemetry.update();
             }
@@ -337,11 +341,39 @@ public class AutoIMU_HuskyLens_Combined extends LinearOpMode {
         }
     }
 
-    public void thirdTurn() {
-        // SECOND TURN: +68 degrees (clockwise from new yaw)
+    private void thirdTurn() {
+        // THIRD TURN: +80 degrees (clockwise from new yaw)
         YawPitchRollAngles currentOrientation = imu.getRobotYawPitchRollAngles();
         double currentYaw = normalizeYaw(currentOrientation.getYaw(AngleUnit.DEGREES));
-        double targetYaw  = normalizeYaw(currentYaw + 80.0);
+        double third = (90 - currentYaw);
+        double targetYaw  = normalizeYaw(third);
+        while (opModeIsActive()) {
+            currentOrientation = imu.getRobotYawPitchRollAngles();
+            double currentYawNow = normalizeYaw(currentOrientation.getYaw(AngleUnit.DEGREES));
+
+            if (Math.abs(currentYawNow - targetYaw) < 2.0) {
+                stopMotors();
+                telemetry.addData("Status", "Reached second target yaw: %.2f", targetYaw);
+                telemetry.update();
+                break;
+            }
+            // Rotate CW
+            setMotorPowers(0.3, true);
+            telemetry.addData("Current Yaw", "%.2f", currentYawNow);
+            telemetry.addData("Target Yaw", "%.2f", targetYaw);
+            telemetry.update();
+        }
+        sleep(850);
+        moveAlongYAxis(1.4);
+    }
+
+    private void forthTurn() {
+        // THIRD TURN: +80 degrees (clockwise from new yaw)
+        stopMotors();
+        YawPitchRollAngles currentOrientation = imu.getRobotYawPitchRollAngles();
+        double currentYaw = normalizeYaw(currentOrientation.getYaw(AngleUnit.DEGREES));
+        double forth = (90 - currentYaw);
+        double targetYaw  = normalizeYaw(forth);
         while (opModeIsActive()) {
             currentOrientation = imu.getRobotYawPitchRollAngles();
             double currentYawNow = normalizeYaw(currentOrientation.getYaw(AngleUnit.DEGREES));
@@ -359,7 +391,6 @@ public class AutoIMU_HuskyLens_Combined extends LinearOpMode {
             telemetry.update();
         }
     }
-
     // ------------------------------------------------------------------------
     // HELPER: Stop all motors
     // ------------------------------------------------------------------------

@@ -151,13 +151,13 @@ public class TeleOP_MAIN extends LinearOpMode {
 
             double tick = otherArmMotor.getCurrentPosition();
 
-            if (gamepad1.a) {
+            /*if (gamepad1.a) {
                 winch.setPower(0.5);
             } else if (gamepad1.b) {
                 winch.setPower(-0.5);
             } else {
                 winch.setPower(0);
-            }
+            }*/
 
             if (gamepad1.y) {
                 armMotor.setPower(0);
