@@ -65,10 +65,10 @@ public class AutoIMU_HuskyLens_Combined extends LinearOpMode {
     // -------------------------------
     // HuskyLens alignment parameters
     // -------------------------------
-    private final int MIN_TARGET_X = 135;
-    private final int MAX_TARGET_X = 205;
-    private final int MIN_TARGET_Y = 130;
-    private final int MAX_TARGET_Y = 135;
+    private final int MIN_TARGET_X = 145;
+    private final int MAX_TARGET_X = 195;
+    private final int MIN_TARGET_Y = 125;
+    private final int MAX_TARGET_Y = 130;
 
     // -------------------------------
     // Arm limit example
@@ -146,7 +146,7 @@ public class AutoIMU_HuskyLens_Combined extends LinearOpMode {
         YawPitchRollAngles currentOrientation = imu.getRobotYawPitchRollAngles();
         double currentYaw = currentOrientation.getYaw(AngleUnit.DEGREES);
         double targetYaw  = normalizeYaw(currentYaw - 60.0);
-
+        sleep(500);
         while (opModeIsActive()) {
             currentOrientation = imu.getRobotYawPitchRollAngles();
             double currentYawNow = normalizeYaw(currentOrientation.getYaw(AngleUnit.DEGREES));
@@ -173,11 +173,10 @@ public class AutoIMU_HuskyLens_Combined extends LinearOpMode {
         rightFrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         sleep(50);
 
-        // SECOND TURN: +55 degrees (clockwise from new yaw)
+        // SECOND TURN: +68 degrees (clockwise from new yaw)
         currentOrientation = imu.getRobotYawPitchRollAngles();
         currentYaw = normalizeYaw(currentOrientation.getYaw(AngleUnit.DEGREES));
-        targetYaw  = normalizeYaw(currentYaw + 65.0);
-
+        targetYaw  = normalizeYaw(currentYaw + 68.0);
         while (opModeIsActive()) {
             currentOrientation = imu.getRobotYawPitchRollAngles();
             double currentYawNow = normalizeYaw(currentOrientation.getYaw(AngleUnit.DEGREES));
@@ -253,16 +252,16 @@ public class AutoIMU_HuskyLens_Combined extends LinearOpMode {
                         // X alignment
                         if (x < MIN_TARGET_X) {
                             // Robot turns left
-                            leftFrontDrive.setPower(-0.4);
-                            leftBackDrive.setPower(-0.4);
-                            rightFrontDrive.setPower(0.4);
-                            rightBackDrive.setPower(0.4);
+                            leftFrontDrive.setPower(-0.25);
+                            leftBackDrive.setPower(-0.25);
+                            rightFrontDrive.setPower(0.25);
+                            rightBackDrive.setPower(0.25);
                         } else if (x > MAX_TARGET_X) {
                             // Robot turns right
-                            leftFrontDrive.setPower(0.4);
-                            leftBackDrive.setPower(0.4);
-                            rightFrontDrive.setPower(-0.4);
-                            rightBackDrive.setPower(-0.4);
+                            leftFrontDrive.setPower(0.25);
+                            leftBackDrive.setPower(0.25);
+                            rightFrontDrive.setPower(-0.25);
+                            rightBackDrive.setPower(-0.25);
                         } else {
                             // Stop turning
                             stopMotors();
@@ -284,6 +283,7 @@ public class AutoIMU_HuskyLens_Combined extends LinearOpMode {
                         // Once we're in the target zone, do the claw action
                         if (x >= MIN_TARGET_X && x <= MAX_TARGET_X && y >= MIN_TARGET_Y && y <= MAX_TARGET_Y) {
                             sleep(500);
+                            stopMotors();
                             //pidControlActive = false; // If you want to turn off the arm-holding PID
 
                             // Switch to some other algorithm (optional)
@@ -291,7 +291,7 @@ public class AutoIMU_HuskyLens_Combined extends LinearOpMode {
                             sleep(250);
 
                             // Example wrist/claw sequence
-                            wrist.setPosition(0.6);
+                            wrist.setPosition(0.75);
                             sleep(250);
                             claw.setPosition(0.065);
                             other_claw.setPosition(0.075);
@@ -303,6 +303,8 @@ public class AutoIMU_HuskyLens_Combined extends LinearOpMode {
                             sleep(750);
 
                             wrist.setPosition(0);
+                            sleep(500);
+                            thirdTurn();
                         }
                     }
                 }
@@ -311,7 +313,7 @@ public class AutoIMU_HuskyLens_Combined extends LinearOpMode {
 
             // If PID is active, hold the arm position
             if (pidControlActive) {
-                pidControl();
+                //pidControl();
             }
         }
     }
@@ -332,6 +334,29 @@ public class AutoIMU_HuskyLens_Combined extends LinearOpMode {
             leftBackDrive.setPower(power);
             rightFrontDrive.setPower(-power);
             rightBackDrive.setPower(-power);
+        }
+    }
+
+    public void thirdTurn() {
+        // SECOND TURN: +68 degrees (clockwise from new yaw)
+        YawPitchRollAngles currentOrientation = imu.getRobotYawPitchRollAngles();
+        double currentYaw = normalizeYaw(currentOrientation.getYaw(AngleUnit.DEGREES));
+        double targetYaw  = normalizeYaw(currentYaw + 80.0);
+        while (opModeIsActive()) {
+            currentOrientation = imu.getRobotYawPitchRollAngles();
+            double currentYawNow = normalizeYaw(currentOrientation.getYaw(AngleUnit.DEGREES));
+
+            if (Math.abs(currentYawNow - targetYaw) < 2.0) {
+                stopMotors();
+                telemetry.addData("Status", "Reached second target yaw: %.2f", targetYaw);
+                telemetry.update();
+                break;
+            }
+            // Rotate CW
+            setMotorPowers(0.3, true);
+            telemetry.addData("Current Yaw", "%.2f", currentYawNow);
+            telemetry.addData("Target Yaw", "%.2f", targetYaw);
+            telemetry.update();
         }
     }
 
