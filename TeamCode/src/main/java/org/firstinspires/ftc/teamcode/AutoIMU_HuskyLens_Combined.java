@@ -67,8 +67,8 @@ public class AutoIMU_HuskyLens_Combined extends LinearOpMode {
     // -------------------------------
     private final int MIN_TARGET_X = 145;
     private final int MAX_TARGET_X = 195;
-    private final int MIN_TARGET_Y = 125;
-    private final int MAX_TARGET_Y = 130;
+    private final int MIN_TARGET_Y = 120;
+    private final int MAX_TARGET_Y = 125;
 
     // -------------------------------
     // Arm limit example
@@ -253,16 +253,16 @@ public class AutoIMU_HuskyLens_Combined extends LinearOpMode {
                         // X alignment
                         if (x < MIN_TARGET_X) {
                             // Robot turns left
-                            leftFrontDrive.setPower(-0.25);
-                            leftBackDrive.setPower(-0.25);
-                            rightFrontDrive.setPower(0.25);
-                            rightBackDrive.setPower(0.25);
+                            leftFrontDrive.setPower(-0.25);                     // Back
+                            leftBackDrive.setPower(-0.25);                      // Left
+                            rightFrontDrive.setPower(0.25);                     // Front
+                            rightBackDrive.setPower(0.25);                      // Right
                         } else if (x > MAX_TARGET_X) {
                             // Robot turns right
-                            leftFrontDrive.setPower(0.25);
-                            leftBackDrive.setPower(0.25);
-                            rightFrontDrive.setPower(-0.25);
-                            rightBackDrive.setPower(-0.25);
+                            leftFrontDrive.setPower(0.25);                      // Back
+                            leftBackDrive.setPower(0.25);                       // Left
+                            rightFrontDrive.setPower(-0.25);                    // Front
+                            rightBackDrive.setPower(-0.25);                     // Right
                         } else {
                             // Stop turning
                             stopMotors();
@@ -308,8 +308,24 @@ public class AutoIMU_HuskyLens_Combined extends LinearOpMode {
                             thirdTurn();
                         }
                     }
-                    if (block.id == 6) {
-                        forthTurn();
+                    if (block.id == 3) {
+                        // X alignment
+                        if (x < MIN_TARGET_X) {
+                            // Robot turns left
+                            leftFrontDrive.setPower(-0.25);                     // Back
+                            //leftBackDrive.setPower(-0.25);                      // Left
+                            rightFrontDrive.setPower(0.25);                     // Front
+                            //rightBackDrive.setPower(0.25);                      // Right
+                        } else if (x > MAX_TARGET_X) {
+                            // Robot turns right
+                            leftFrontDrive.setPower(0.25);                      // Back
+                            //leftBackDrive.setPower(0.25);                       // Left
+                            rightFrontDrive.setPower(-0.25);                    // Front
+                            //rightBackDrive.setPower(-0.25);                     // Right
+                        } else {
+                            // Stop turning
+                            //stopMotors();
+                        }
                     }
                 }
                 telemetry.update();
@@ -342,10 +358,10 @@ public class AutoIMU_HuskyLens_Combined extends LinearOpMode {
     }
 
     private void thirdTurn() {
-        // THIRD TURN: +80 degrees (clockwise from new yaw)
+        // THIRD TURN: +81 degrees (clockwise from new yaw)
         YawPitchRollAngles currentOrientation = imu.getRobotYawPitchRollAngles();
         double currentYaw = normalizeYaw(currentOrientation.getYaw(AngleUnit.DEGREES));
-        double third = (90 - currentYaw);
+        double third = (81 - currentYaw);
         double targetYaw  = normalizeYaw(third);
         while (opModeIsActive()) {
             currentOrientation = imu.getRobotYawPitchRollAngles();
@@ -364,7 +380,7 @@ public class AutoIMU_HuskyLens_Combined extends LinearOpMode {
             telemetry.update();
         }
         sleep(850);
-        moveAlongYAxis(1.4);
+        moveAlongYAxis(2.5);
     }
 
     private void forthTurn() {
