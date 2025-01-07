@@ -176,7 +176,7 @@ public class AutoIMU_HuskyLens_Combined extends LinearOpMode {
         // SECOND TURN: +68 degrees (clockwise from new yaw)
         currentOrientation = imu.getRobotYawPitchRollAngles();
         currentYaw = normalizeYaw(currentOrientation.getYaw(AngleUnit.DEGREES));
-        targetYaw  = normalizeYaw(currentYaw + 68.0);
+        targetYaw  = normalizeYaw(currentYaw + 65.0);
         while (opModeIsActive()) {
             currentOrientation = imu.getRobotYawPitchRollAngles();
             double currentYawNow = normalizeYaw(currentOrientation.getYaw(AngleUnit.DEGREES));
@@ -308,7 +308,7 @@ public class AutoIMU_HuskyLens_Combined extends LinearOpMode {
                             thirdTurn();
                         }
                     }
-                    if (block.id == 3) {
+                    /*if (block.id == 3) {
                         // X alignment
                         if (x < MIN_TARGET_X) {
                             // Robot turns left
@@ -326,7 +326,7 @@ public class AutoIMU_HuskyLens_Combined extends LinearOpMode {
                             // Stop turning
                             //stopMotors();
                         }
-                    }
+                    }*/
                 }
                 telemetry.update();
             }
@@ -359,9 +359,10 @@ public class AutoIMU_HuskyLens_Combined extends LinearOpMode {
 
     private void thirdTurn() {
         // THIRD TURN: +81 degrees (clockwise from new yaw)
+        huskyLens.selectAlgorithm(HuskyLens.Algorithm.TAG_RECOGNITION);
         YawPitchRollAngles currentOrientation = imu.getRobotYawPitchRollAngles();
         double currentYaw = normalizeYaw(currentOrientation.getYaw(AngleUnit.DEGREES));
-        double third = (81 - currentYaw);
+        double third = (70 - currentYaw);
         double targetYaw  = normalizeYaw(third);
         while (opModeIsActive()) {
             currentOrientation = imu.getRobotYawPitchRollAngles();
@@ -379,34 +380,51 @@ public class AutoIMU_HuskyLens_Combined extends LinearOpMode {
             telemetry.addData("Target Yaw", "%.2f", targetYaw);
             telemetry.update();
         }
+        huskyLens.selectAlgorithm(HuskyLens.Algorithm.TAG_RECOGNITION);
         sleep(850);
-        moveAlongYAxis(2.5);
+        huskyLens.selectAlgorithm(HuskyLens.Algorithm.TAG_RECOGNITION);
+        moveAlongYAxis(2);
+        sleep(500);
+        AprilTag();
+        sleep(500);
+        moveAlongYAxis(0.5);
+        sleep(500);
+        AprilTag();
+        sleep(500);
+        moveAlongYAxis(0.6);
     }
 
-    private void forthTurn() {
-        // THIRD TURN: +80 degrees (clockwise from new yaw)
-        stopMotors();
-        YawPitchRollAngles currentOrientation = imu.getRobotYawPitchRollAngles();
-        double currentYaw = normalizeYaw(currentOrientation.getYaw(AngleUnit.DEGREES));
-        double forth = (90 - currentYaw);
-        double targetYaw  = normalizeYaw(forth);
-        while (opModeIsActive()) {
-            currentOrientation = imu.getRobotYawPitchRollAngles();
-            double currentYawNow = normalizeYaw(currentOrientation.getYaw(AngleUnit.DEGREES));
+    private void AprilTag() {
+        HuskyLens.Block[] blocks = huskyLens.blocks();
+        telemetry.addData("Block count", blocks.length);
 
-            if (Math.abs(currentYawNow - targetYaw) < 2.0) {
-                stopMotors();
-                telemetry.addData("Status", "Reached second target yaw: %.2f", targetYaw);
-                telemetry.update();
-                break;
+        for (HuskyLens.Block block : blocks) {
+            telemetry.addData("Block", block.toString());
+            int x = block.x;
+            int y = block.y;
+
+            if (block.id == 3) {
+                // X alignment
+                if (x < MIN_TARGET_X) {
+                    // Robot turns left
+                    leftFrontDrive.setPower(-0.25);                     // Back
+                    //leftBackDrive.setPower(-0.25);                      // Left
+                    rightFrontDrive.setPower(0.25);                     // Front
+                    //rightBackDrive.setPower(0.25);                      // Right
+                } else if (x > MAX_TARGET_X) {
+                    // Robot turns right
+                    leftFrontDrive.setPower(0.25);                      // Back
+                    //leftBackDrive.setPower(0.25);                       // Left
+                    rightFrontDrive.setPower(-0.25);                    // Front
+                    //rightBackDrive.setPower(-0.25);                     // Right
+                } else {
+                    // Stop turning
+                    //stopMotors();
+                }
             }
-            // Rotate CW
-            setMotorPowers(0.3, true);
-            telemetry.addData("Current Yaw", "%.2f", currentYawNow);
-            telemetry.addData("Target Yaw", "%.2f", targetYaw);
-            telemetry.update();
         }
     }
+
     // ------------------------------------------------------------------------
     // HELPER: Stop all motors
     // ------------------------------------------------------------------------
