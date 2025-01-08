@@ -65,10 +65,10 @@ public class AutoIMU_HuskyLens_Combined extends LinearOpMode {
     // -------------------------------
     // HuskyLens alignment parameters
     // -------------------------------
-    private final int MIN_TARGET_X = 145;
-    private final int MAX_TARGET_X = 195;
-    private final int MIN_TARGET_Y = 120;
-    private final int MAX_TARGET_Y = 125;
+    private int MIN_TARGET_X = 145;
+    private int MAX_TARGET_X = 195;
+    private int MIN_TARGET_Y = 120;
+    private int MAX_TARGET_Y = 125;
 
     // -------------------------------
     // Arm limit example
@@ -304,7 +304,7 @@ public class AutoIMU_HuskyLens_Combined extends LinearOpMode {
                             sleep(750);
 
                             wrist.setPosition(0);
-                            sleep(500);
+                            sleep(1000);
                             thirdTurn();
                         }
                     }
@@ -363,7 +363,7 @@ public class AutoIMU_HuskyLens_Combined extends LinearOpMode {
         YawPitchRollAngles currentOrientation = imu.getRobotYawPitchRollAngles();
         double currentYaw = normalizeYaw(currentOrientation.getYaw(AngleUnit.DEGREES));
         double third = (70 - currentYaw);
-        double targetYaw  = normalizeYaw(third);
+        double targetYaw  = normalizeYaw(currentYaw + 70);
         while (opModeIsActive()) {
             currentOrientation = imu.getRobotYawPitchRollAngles();
             double currentYawNow = normalizeYaw(currentOrientation.getYaw(AngleUnit.DEGREES));
@@ -383,7 +383,7 @@ public class AutoIMU_HuskyLens_Combined extends LinearOpMode {
         huskyLens.selectAlgorithm(HuskyLens.Algorithm.TAG_RECOGNITION);
         sleep(850);
         huskyLens.selectAlgorithm(HuskyLens.Algorithm.TAG_RECOGNITION);
-        moveAlongYAxis(2);
+        moveAlongYAxis(2.2);
         sleep(500);
         AprilTag();
         sleep(500);
@@ -395,31 +395,35 @@ public class AutoIMU_HuskyLens_Combined extends LinearOpMode {
     }
 
     private void AprilTag() {
+        MIN_TARGET_X = 155;
+        MAX_TARGET_X = 165;
+        HuskyLens huskyLens;
+        huskyLens = hardwareMap.get(HuskyLens.class, "huskylens");
+        huskyLens.initialize();
         HuskyLens.Block[] blocks = huskyLens.blocks();
         telemetry.addData("Block count", blocks.length);
 
         for (HuskyLens.Block block : blocks) {
             telemetry.addData("Block", block.toString());
             int x = block.x;
-            int y = block.y;
 
             if (block.id == 3) {
                 // X alignment
                 if (x < MIN_TARGET_X) {
                     // Robot turns left
-                    leftFrontDrive.setPower(-0.25);                     // Back
-                    //leftBackDrive.setPower(-0.25);                      // Left
-                    rightFrontDrive.setPower(0.25);                     // Front
-                    //rightBackDrive.setPower(0.25);                      // Right
+                    leftFrontDrive.setPower(-0.25);                      // Back
+                    leftBackDrive.setPower(-0.25);                      // Left
+                    rightFrontDrive.setPower(0.25);                    // Front
+                    rightBackDrive.setPower(0.25);                      // Right
                 } else if (x > MAX_TARGET_X) {
                     // Robot turns right
-                    leftFrontDrive.setPower(0.25);                      // Back
-                    //leftBackDrive.setPower(0.25);                       // Left
-                    rightFrontDrive.setPower(-0.25);                    // Front
-                    //rightBackDrive.setPower(-0.25);                     // Right
+                    leftFrontDrive.setPower(0.25);                     // Back
+                    leftBackDrive.setPower(0.25);                       // Left
+                    rightFrontDrive.setPower(-0.25);                     // Front
+                    rightBackDrive.setPower(-0.25);                     // Right
                 } else {
                     // Stop turning
-                    //stopMotors();
+                    stopMotors();
                 }
             }
         }
