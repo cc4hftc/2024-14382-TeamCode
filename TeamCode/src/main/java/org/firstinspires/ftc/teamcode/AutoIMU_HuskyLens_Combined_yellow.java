@@ -65,10 +65,14 @@ public class AutoIMU_HuskyLens_Combined_yellow extends LinearOpMode {
     // -------------------------------
     // HuskyLens alignment parameters
     // -------------------------------
-    private int MIN_TARGET_X = 145;
-    private int MAX_TARGET_X = 195;
-    private int MIN_TARGET_Y = 120;
-    private int MAX_TARGET_Y = 125;
+    private int MIN_TARGET_X = 140;
+    private int MAX_TARGET_X = 180;
+    private int MIN_TARGET_Y = 85;
+    private int MAX_TARGET_Y = 95;
+    private int turn = 133;
+    private double YSpeed = 0.3;
+    private double forthMove = 0.3;
+    private double turnThing = 0;
 
     // -------------------------------
     // Arm limit example
@@ -176,7 +180,7 @@ public class AutoIMU_HuskyLens_Combined_yellow extends LinearOpMode {
         // SECOND TURN: +68 degrees (clockwise from new yaw)
         currentOrientation = imu.getRobotYawPitchRollAngles();
         currentYaw = normalizeYaw(currentOrientation.getYaw(AngleUnit.DEGREES));
-        targetYaw  = normalizeYaw(currentYaw - 70.0);
+        targetYaw  = normalizeYaw(currentYaw - 60.0);
         while (opModeIsActive()) {
             currentOrientation = imu.getRobotYawPitchRollAngles();
             double currentYawNow = normalizeYaw(currentOrientation.getYaw(AngleUnit.DEGREES));
@@ -215,7 +219,9 @@ public class AutoIMU_HuskyLens_Combined_yellow extends LinearOpMode {
             if (getRuntime() - lastTime >= READ_PERIOD) {
                 lastTime = getRuntime();
 
-                HuskyLens.Block[] blocks = huskyLens.blocks();
+                firstAline();
+
+                /*HuskyLens.Block[] blocks = huskyLens.blocks();
                 telemetry.addData("Block count", blocks.length);
 
                 // Stop any leftover movement from the drive train
@@ -230,7 +236,7 @@ public class AutoIMU_HuskyLens_Combined_yellow extends LinearOpMode {
                     // Example: we only move if the block has ID == 2
                     if (block.id == 1) {
                         // X alignment
-                        if (x > 40 && x < MIN_TARGET_X) {
+                        if (x > 10 && x < MIN_TARGET_X) {
                             // Robot turns left
                             leftFrontDrive.setPower(-0.25);                     // Back
                             leftBackDrive.setPower(-0.25);                      // Left
@@ -250,12 +256,12 @@ public class AutoIMU_HuskyLens_Combined_yellow extends LinearOpMode {
                         // Y alignment
                         if (y < MIN_TARGET_Y) {
                             // Move forward
-                            leftBackDrive.setPower(0.25);
-                            rightBackDrive.setPower(0.25);
+                            leftBackDrive.setPower(YSpeed);
+                            rightBackDrive.setPower(YSpeed);
                         } else if (y > MAX_TARGET_Y) {
                             // Move backward
-                            leftBackDrive.setPower(-0.25);
-                            rightBackDrive.setPower(-0.25);
+                            leftBackDrive.setPower(-YSpeed);
+                            rightBackDrive.setPower(-YSpeed);
                         } else {
                             stopMotors();
                         }
@@ -306,7 +312,7 @@ public class AutoIMU_HuskyLens_Combined_yellow extends LinearOpMode {
                             //stopMotors();
                         }
                     }*/
-                }
+                //}
                 telemetry.update();
             }
 
@@ -338,6 +344,9 @@ public class AutoIMU_HuskyLens_Combined_yellow extends LinearOpMode {
 
     private void MoveArm() {
         // Move arms to initial position
+        turn = 135;
+        forthMove = 0.15;
+        turnThing = 0.2;
         int min_limit = 0;
         int limit = 400;
         armMotor.setTargetPosition(limit);
@@ -365,11 +374,11 @@ public class AutoIMU_HuskyLens_Combined_yellow extends LinearOpMode {
         sleep(700);
         wrist.setPosition(0.67);
         sleep(1500);
-        claw.setPosition(0.065);
-        other_claw.setPosition(0.075);
-        sleep(950);
+        claw.setPosition(0.085);
+        other_claw.setPosition(0.095);
+        /*sleep(950);
         claw.setPosition(0.1775);
-        other_claw.setPosition(0.1775);
+        other_claw.setPosition(0.1775);*/
         sleep(500);
         wrist.setPosition(0);
         sleep(600);
@@ -398,7 +407,7 @@ public class AutoIMU_HuskyLens_Combined_yellow extends LinearOpMode {
         YawPitchRollAngles currentOrientation = imu.getRobotYawPitchRollAngles();
         double currentYaw = normalizeYaw(currentOrientation.getYaw(AngleUnit.DEGREES));
         double third = (70 - currentYaw);
-        double targetYaw  = normalizeYaw(currentYaw + 133);
+        double targetYaw  = normalizeYaw(currentYaw + turn);
         while (opModeIsActive()) {
             currentOrientation = imu.getRobotYawPitchRollAngles();
             double currentYawNow = normalizeYaw(currentOrientation.getYaw(AngleUnit.DEGREES));
@@ -416,7 +425,7 @@ public class AutoIMU_HuskyLens_Combined_yellow extends LinearOpMode {
             telemetry.update();
         }
         sleep(250);
-        moveAlongYAxis(0.3);
+        moveAlongYAxis(0.275);
         sleep(350);
         MoveArm();
         sleep(450);
@@ -426,6 +435,7 @@ public class AutoIMU_HuskyLens_Combined_yellow extends LinearOpMode {
     private void forthTurn() {
         // THIRD TURN: +81 degrees (clockwise from new yaw)
         //huskyLens.selectAlgorithm(HuskyLens.Algorithm.TAG_RECOGNITION);
+        double YSpeed = 0.4;
         resetDriveEncoder();
         YawPitchRollAngles currentOrientation = imu.getRobotYawPitchRollAngles();
         double currentYaw = normalizeYaw(currentOrientation.getYaw(AngleUnit.DEGREES));
@@ -441,7 +451,7 @@ public class AutoIMU_HuskyLens_Combined_yellow extends LinearOpMode {
                 break;
             }
             // Rotate CW
-            setMotorPowers(0.3, false);
+            setMotorPowers(forthMove * 2, false);
             telemetry.addData("Current Yaw", "%.2f", currentYawNow);
             telemetry.addData("Target Yaw", "%.2f", targetYaw);
             telemetry.addData("motor 1", leftFrontDrive.getCurrentPosition());
@@ -452,9 +462,20 @@ public class AutoIMU_HuskyLens_Combined_yellow extends LinearOpMode {
         }
 
         sleep(100);
-        MIN_TARGET_X = 145;
-        MAX_TARGET_X = 155;
+        //MIN_TARGET_X = 145;
+        //MAX_TARGET_X = 155;
+        //MIN_TARGET_Y = 120;
+        //MAX_TARGET_Y = 130;
+
         stopMotors();
+        int stop;
+        sleep(100);
+        moveAlongYAxis(turnThing);
+        sleep(100);
+        stop = 1;
+        while (stop == 1) {
+            break;
+        }
         huskyLens.selectAlgorithm(HuskyLens.Algorithm.COLOR_RECOGNITION);
         HuskyLens.Block[] blocks = huskyLens.blocks();
         telemetry.addData("Block count", blocks.length);
@@ -466,7 +487,7 @@ public class AutoIMU_HuskyLens_Combined_yellow extends LinearOpMode {
             // Example: we only move if the block has ID == 2
             if (block.id == 1) {
                 // X alignment
-                if (x > 50 && x < MIN_TARGET_X) {
+                /*if (x > 10 && x < MIN_TARGET_X) {
                     // Robot turns left
                     leftFrontDrive.setPower(-0.25);                     // Back
                     leftBackDrive.setPower(-0.25);                      // Left
@@ -481,17 +502,17 @@ public class AutoIMU_HuskyLens_Combined_yellow extends LinearOpMode {
                 } else {
                     // Stop turning
                     stopMotors();
-                }
+                }*/
 
                 // Y alignment
                 if (y < MIN_TARGET_Y) {
                     // Move forward
-                    leftBackDrive.setPower(0.25);
-                    rightBackDrive.setPower(0.25);
+                    leftBackDrive.setPower(YSpeed);
+                    rightBackDrive.setPower(YSpeed);
                 } else if (y > MAX_TARGET_Y) {
                     // Move backward
-                    leftBackDrive.setPower(-0.25);
-                    rightBackDrive.setPower(-0.25);
+                    leftBackDrive.setPower(-YSpeed);
+                    rightBackDrive.setPower(-YSpeed);
                 } else {
                     stopMotors();
                 }
@@ -509,14 +530,14 @@ public class AutoIMU_HuskyLens_Combined_yellow extends LinearOpMode {
                     // Example wrist/claw sequence
                     wrist.setPosition(0.75);
                     sleep(250);
-                    claw.setPosition(0.065);
-                    other_claw.setPosition(0.075);
-                    sleep(1500);
+                    claw.setPosition(0.085);
+                    other_claw.setPosition(0.095);
+                    /*sleep(1500);
 
                     // Return the claw to "closed" or "open" as needed
                     claw.setPosition(0.1775);
                     other_claw.setPosition(0.1775);
-                    sleep(750);
+                    sleep(750);*/
 
                     wrist.setPosition(0);
                     sleep(500);
@@ -569,6 +590,101 @@ public class AutoIMU_HuskyLens_Combined_yellow extends LinearOpMode {
         leftBackDrive.setPower(0);
         rightFrontDrive.setPower(0);
         rightBackDrive.setPower(0);
+    }
+
+    private void firstAline() {
+        HuskyLens.Block[] blocks = huskyLens.blocks();
+        telemetry.addData("Block count", blocks.length);
+
+        // Stop any leftover movement from the drive train
+        stopMotors();
+
+        // Check each block (color) recognized
+        for (HuskyLens.Block block : blocks) {
+            telemetry.addData("Block", block.toString());
+            int x = block.x;
+            int y = block.y;
+
+            // Example: we only move if the block has ID == 2
+            if (block.id == 1) {
+                // X alignment
+                if (x > 100 && x < MIN_TARGET_X) {
+                    // Robot turns left
+                    leftFrontDrive.setPower(-0.25);                     // Back
+                    leftBackDrive.setPower(-0.25);                      // Left
+                    rightFrontDrive.setPower(0.25);                     // Front
+                    rightBackDrive.setPower(0.25);                      // Right
+                } else if (x > MAX_TARGET_X) {
+                    // Robot turns right
+                    leftFrontDrive.setPower(0.25);                      // Back
+                    leftBackDrive.setPower(0.25);                       // Left
+                    rightFrontDrive.setPower(-0.25);                    // Front
+                    rightBackDrive.setPower(-0.25);                     // Right
+                } else {
+                    // Stop turning
+                    stopMotors();
+                }
+
+                // Y alignment
+                if (y < MIN_TARGET_Y) {
+                    // Move forward
+                    leftBackDrive.setPower(YSpeed);
+                    rightBackDrive.setPower(YSpeed);
+                } else if (y > MAX_TARGET_Y) {
+                    // Move backward
+                    leftBackDrive.setPower(-YSpeed);
+                    rightBackDrive.setPower(-YSpeed);
+                } else {
+                    stopMotors();
+                }
+
+                // Once we're in the target zone, do the claw action
+                if (x >= MIN_TARGET_X && x <= MAX_TARGET_X && y >= MIN_TARGET_Y && y <= MAX_TARGET_Y) {
+                    sleep(500);
+                    stopMotors();
+                    //pidControlActive = false; // If you want to turn off the arm-holding PID
+
+                    // Switch to some other algorithm (optional)
+                    huskyLens.selectAlgorithm(HuskyLens.Algorithm.TAG_RECOGNITION);
+                    sleep(250);
+
+                    // Example wrist/claw sequence
+                    wrist.setPosition(0.75);
+                    sleep(250);
+                    claw.setPosition(0.085);
+                    other_claw.setPosition(0.095);
+                    sleep(1500);
+
+                    // Return the claw to "closed" or "open" as needed
+                    claw.setPosition(0.1775);
+                    other_claw.setPosition(0.1775);
+                    sleep(750);
+
+                    wrist.setPosition(0);
+                    sleep(1000);
+                    thirdTurn();
+                }
+            }
+                    /*if (block.id == 3) {
+                        // X alignment
+                        if (x < MIN_TARGET_X) {
+                            // Robot turns left
+                            leftFrontDrive.setPower(-0.25);                     // Back
+                            //leftBackDrive.setPower(-0.25);                      // Left
+                            rightFrontDrive.setPower(0.25);                     // Front
+                            //rightBackDrive.setPower(0.25);                      // Right
+                        } else if (x > MAX_TARGET_X) {
+                            // Robot turns right
+                            leftFrontDrive.setPower(0.25);                      // Back
+                            //leftBackDrive.setPower(0.25);                       // Left
+                            rightFrontDrive.setPower(-0.25);                    // Front
+                            //rightBackDrive.setPower(-0.25);                     // Right
+                        } else {
+                            // Stop turning
+                            //stopMotors();
+                        }
+                    }*/
+        }
     }
 
     // ------------------------------------------------------------------------
