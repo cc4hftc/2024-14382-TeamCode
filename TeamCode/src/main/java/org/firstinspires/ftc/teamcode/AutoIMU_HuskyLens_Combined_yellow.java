@@ -547,6 +547,7 @@ public class AutoIMU_HuskyLens_Combined_yellow extends LinearOpMode {
         }
     }
 
+    // Made to line with a apriltag but never used
     private void AprilTag() {
         MIN_TARGET_X = 155;
         MAX_TARGET_X = 165;
