@@ -12,7 +12,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 @Autonomous
 
 public class AprilTag extends LinearOpMode {
-    
+
     private DcMotor leftFrontDrive;
     private DcMotor leftBackDrive;
     private DcMotor rightFrontDrive;
@@ -21,7 +21,7 @@ public class AprilTag extends LinearOpMode {
     private IMU imu;
     private int MIN_TARGET_X = 110;
     private int MAX_TARGET_X = 200;
-    
+
     @Override
     public void runOpMode() {
         leftFrontDrive = hardwareMap.get(DcMotor.class, "left_front_drive");
@@ -76,14 +76,14 @@ public class AprilTag extends LinearOpMode {
             }
         }
     }
-    
+
     private void stopMotors() {
         leftFrontDrive.setPower(0);
         leftBackDrive.setPower(0);
         rightFrontDrive.setPower(0);
         rightBackDrive.setPower(0);
     }
-    
+
     private double normalizeYaw(double yaw) {
         while (yaw <= -180.0) {
             yaw += 360.0;
