@@ -180,7 +180,7 @@ public class TeleOP_MAIN extends LinearOpMode {
             newWrist += (gamepad2.right_stick_y/150);
 
             //Set the min and max wrist positions
-            newWrist = Math.max(0, Math.min(0.72, newWrist));
+            newWrist = Math.max(0, Math.min(0.72, newWrist)); // 0.72
 
             //Set the wrist servo position
             wrist.setPosition(newWrist);

@@ -17,7 +17,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
  * 2) Activates HuskyLens color recognition.
  * 3) Aligns with the detected color and operates the claw.
  */
-@Autonomous(name = "AutoIMU_HuskyLens_Combined_yellow")
+@Autonomous(name = "Auto_Main")
 public class AutoIMU_HuskyLens_Combined_yellow extends LinearOpMode {
 
     // -------------------------------
@@ -67,8 +67,8 @@ public class AutoIMU_HuskyLens_Combined_yellow extends LinearOpMode {
     // -------------------------------
     private int MIN_TARGET_X = 140;
     private int MAX_TARGET_X = 180;
-    private int MIN_TARGET_Y = 85;
-    private int MAX_TARGET_Y = 95;
+    private int MIN_TARGET_Y = 100;
+    private int MAX_TARGET_Y = 110;
     private int turn = 133;
     private double YSpeed = 0.3;
     private double forthMove = 0.3;
@@ -127,8 +127,8 @@ public class AutoIMU_HuskyLens_Combined_yellow extends LinearOpMode {
         armMotor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
 
         // Initialize claw positions (example)
-        claw.setPosition(0.1775);
-        other_claw.setPosition(0.1775);
+        claw.setPosition(0.2075);
+        other_claw.setPosition(0.1475);
 
         // Initialize HuskyLens
         if (!huskyLens.knock()) {
@@ -168,8 +168,8 @@ public class AutoIMU_HuskyLens_Combined_yellow extends LinearOpMode {
             telemetry.update();
         }
 
-        // MOVE FORWARD 1.3 unit using back motors
-        moveAlongYAxis(1.3);
+        // MOVE FORWARD 1.4 unit using back motors
+        moveAlongYAxis(1.4);
         // Return back motors to run_using_encoder
         leftBackDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightBackDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -372,10 +372,10 @@ public class AutoIMU_HuskyLens_Combined_yellow extends LinearOpMode {
         otherTargetPosition = otherArmMotor.getCurrentPosition();
         pidControlActive = true; // We can keep them locked in place if desired
         sleep(700);
-        wrist.setPosition(0.67);
+        wrist.setPosition(0.72); // 0.67
         sleep(1500);
         claw.setPosition(0.095);
-        other_claw.setPosition(0.105);
+        other_claw.setPosition(0.045);
         /*sleep(950);
         claw.setPosition(0.1775);
         other_claw.setPosition(0.1775);*/
@@ -531,7 +531,7 @@ public class AutoIMU_HuskyLens_Combined_yellow extends LinearOpMode {
                     wrist.setPosition(0.75);
                     sleep(250);
                     claw.setPosition(0.095);
-                    other_claw.setPosition(0.105);
+                    other_claw.setPosition(0.045);
                     /*sleep(1500);
 
                     // Return the claw to "closed" or "open" as needed
@@ -653,12 +653,12 @@ public class AutoIMU_HuskyLens_Combined_yellow extends LinearOpMode {
                     wrist.setPosition(0.75);
                     sleep(250);
                     claw.setPosition(0.095);
-                    other_claw.setPosition(0.105);
+                    other_claw.setPosition(0.045);
                     sleep(1500);
 
                     // Return the claw to "closed" or "open" as needed
-                    claw.setPosition(0.1775);
-                    other_claw.setPosition(0.1775);
+                    claw.setPosition(0.2075);
+                    other_claw.setPosition(0.1475);
                     sleep(750);
 
                     wrist.setPosition(0);
