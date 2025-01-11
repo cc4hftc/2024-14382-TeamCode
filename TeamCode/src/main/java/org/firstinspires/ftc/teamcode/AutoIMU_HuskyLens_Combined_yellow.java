@@ -374,8 +374,8 @@ public class AutoIMU_HuskyLens_Combined_yellow extends LinearOpMode {
         sleep(700);
         wrist.setPosition(0.67);
         sleep(1500);
-        claw.setPosition(0.085);
-        other_claw.setPosition(0.095);
+        claw.setPosition(0.095);
+        other_claw.setPosition(0.105);
         /*sleep(950);
         claw.setPosition(0.1775);
         other_claw.setPosition(0.1775);*/
@@ -530,8 +530,8 @@ public class AutoIMU_HuskyLens_Combined_yellow extends LinearOpMode {
                     // Example wrist/claw sequence
                     wrist.setPosition(0.75);
                     sleep(250);
-                    claw.setPosition(0.085);
-                    other_claw.setPosition(0.095);
+                    claw.setPosition(0.095);
+                    other_claw.setPosition(0.105);
                     /*sleep(1500);
 
                     // Return the claw to "closed" or "open" as needed
@@ -652,8 +652,8 @@ public class AutoIMU_HuskyLens_Combined_yellow extends LinearOpMode {
                     // Example wrist/claw sequence
                     wrist.setPosition(0.75);
                     sleep(250);
-                    claw.setPosition(0.085);
-                    other_claw.setPosition(0.095);
+                    claw.setPosition(0.095);
+                    other_claw.setPosition(0.105);
                     sleep(1500);
 
                     // Return the claw to "closed" or "open" as needed
