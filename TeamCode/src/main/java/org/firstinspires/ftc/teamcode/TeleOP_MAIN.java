@@ -231,6 +231,10 @@ public class TeleOP_MAIN extends LinearOpMode {
             telemetry.addData("  - Back Power", rightFrontPower);
             telemetry.addData("  - Left Power", leftBackPower);
             telemetry.addData("  - Right Power", rightBackPower);
+            telemetry.addData("  - Front Position", rightFrontDrive.getCurrentPosition());
+            telemetry.addData("  - Back Position", leftFrontDrive.getCurrentPosition());
+            telemetry.addData("  - Left Position", leftBackDrive.getCurrentPosition());
+            telemetry.addData("  - Right Position", rightBackDrive.getCurrentPosition());
             telemetry.addData(" ", null);
             telemetry.update();
 
