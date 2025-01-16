@@ -1,8 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -21,8 +19,7 @@ public class Auto_Spec extends LinearOpMode {
     private double integral = 0, lastError = 0, otherLastError = 0;
     private ElapsedTime timer = new ElapsedTime();
     private boolean pidControlActive = false;
-    private int limit = 200;
-    //Motor = 1100
+    private int limit = 180;
 
     @Override
     public void runOpMode() {
@@ -37,10 +34,10 @@ public class Auto_Spec extends LinearOpMode {
 
     private void initializeHardware() {
         // Initialize motors
-        leftFrontDrive = hardwareMap.get(DcMotor.class, "left_front_drive");
-        leftBackDrive = hardwareMap.get(DcMotor.class, "left_back_drive");
-        rightFrontDrive = hardwareMap.get(DcMotor.class, "right_front_drive");
-        rightBackDrive = hardwareMap.get(DcMotor.class, "right_back_drive");
+        leftFrontDrive = hardwareMap.get(DcMotor.class, "left_front_drive");            // Back
+        leftBackDrive = hardwareMap.get(DcMotor.class, "left_back_drive");              // Left
+        rightFrontDrive = hardwareMap.get(DcMotor.class, "right_front_drive");          // Front
+        rightBackDrive = hardwareMap.get(DcMotor.class, "right_back_drive");            // Right
 
         // Set motor directions
         leftFrontDrive.setDirection(DcMotor.Direction.REVERSE);
@@ -73,7 +70,9 @@ public class Auto_Spec extends LinearOpMode {
     }
 
     private void performAutonomousSequence() {
-        moveAlongYAxis(0.685);
+        //moveAlongYAxis(0.685);
+        resetDriveEncoder();
+        MoveToTarget(1025);
         stopMotors();
         sleep(150);
         moveArmToLimit();
@@ -131,13 +130,47 @@ public class Auto_Spec extends LinearOpMode {
         pidControlActive = true;
     }
 
+    private void MoveToTarget(int targetTicks) {
+        while (opModeIsActive()) {
+            int currentTicks = leftBackDrive.getCurrentPosition();
+            int otherCurrentTicks = rightBackDrive.getCurrentPosition();
+
+            leftBackDrive.setTargetPosition(targetTicks);
+            rightBackDrive.setTargetPosition(targetTicks);
+
+            if (currentTicks < targetTicks) {
+                setBackMotorPowers(0.3);
+            } else if (currentTicks >= targetTicks) {
+                stopMotors();
+                break;
+            }
+            telemetry.addData("Current", currentTicks);
+            telemetry.addData("Other Current", otherCurrentTicks);
+            telemetry.update();
+        }
+    }
+
+
+    private void setMotorPowers(double power, boolean clockwise) {
+        if (clockwise) {
+            // Clockwise: left motors negative, right motors positive
+            leftFrontDrive.setPower(-power);
+            leftBackDrive.setPower(-power);
+            rightFrontDrive.setPower(power);
+            rightBackDrive.setPower(power);
+        } else {
+            // Counterclockwise
+            leftFrontDrive.setPower(power);
+            leftBackDrive.setPower(power);
+            rightFrontDrive.setPower(-power);
+            rightBackDrive.setPower(-power);
+        }
+    }
+
     private void moveArmDown() {
         limit = 0;
         armMotor.setTargetPosition(limit);
         otherArmMotor.setTargetPosition(limit);
-
-        armMotor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-        otherArmMotor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
 
         armMotor.setPower(-0.45);
         otherArmMotor.setPower(-0.45);
@@ -208,6 +241,17 @@ public class Auto_Spec extends LinearOpMode {
         while (yaw <= -180.0) yaw += 360.0;
         while (yaw > 180.0) yaw -= 360.0;
         return yaw;
+    }
+
+    private void resetDriveEncoder() {
+        leftFrontDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftBackDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightFrontDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightBackDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftFrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        leftBackDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightFrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightBackDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
     private void pidControl() {
