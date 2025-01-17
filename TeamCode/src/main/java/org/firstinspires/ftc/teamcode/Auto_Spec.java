@@ -74,15 +74,21 @@ public class Auto_Spec extends LinearOpMode {
         resetDriveEncoder();
         MoveToTarget(1025);
         stopMotors();
-        sleep(150);
-        moveArmToLimit();
+        sleep(250);
+        /*moveArmToLimit();
         sleep(150);
         moveWristForward();
         deactivatePID();
         sleep(150);
         openClaw();
         sleep(150);
-        moveWristBack();
+        moveWristBack();*/
+        Turn(540);
+        resetDriveEncoder();
+        sleep(250);
+        MoveToTarget(2150);
+        sleep(250);
+        Turn(550);
         sleep(500);
     }
 
@@ -131,12 +137,21 @@ public class Auto_Spec extends LinearOpMode {
     }
 
     private void MoveToTarget(int targetTicks) {
+        leftFrontDrive.setDirection(DcMotor.Direction.REVERSE);
+        leftBackDrive.setDirection(DcMotor.Direction.REVERSE);
+        rightFrontDrive.setDirection(DcMotor.Direction.FORWARD);
+        rightBackDrive.setDirection(DcMotor.Direction.FORWARD);
+
+        resetDriveEncoder();
+
         while (opModeIsActive()) {
             int currentTicks = leftBackDrive.getCurrentPosition();
             int otherCurrentTicks = rightBackDrive.getCurrentPosition();
 
             leftBackDrive.setTargetPosition(targetTicks);
             rightBackDrive.setTargetPosition(targetTicks);
+            leftFrontDrive.setTargetPosition(0);
+            rightFrontDrive.setTargetPosition(0);
 
             if (currentTicks < targetTicks) {
                 setBackMotorPowers(0.3);
@@ -162,6 +177,22 @@ public class Auto_Spec extends LinearOpMode {
             // Counterclockwise
             leftFrontDrive.setPower(power);
             leftBackDrive.setPower(power);
+            rightFrontDrive.setPower(-power);
+            rightBackDrive.setPower(-power);
+        }
+    }
+
+    private void TurnMotors(double power, boolean clockwise) {
+        if (clockwise) {
+            // Clockwise: left motors negative, right motors positive
+            leftFrontDrive.setPower(power);
+            leftBackDrive.setPower(power);
+            rightFrontDrive.setPower(power);
+            rightBackDrive.setPower(power);
+        } else {
+            // Counterclockwise
+            leftFrontDrive.setPower(-power);
+            leftBackDrive.setPower(-power);
             rightFrontDrive.setPower(-power);
             rightBackDrive.setPower(-power);
         }
@@ -241,6 +272,35 @@ public class Auto_Spec extends LinearOpMode {
         while (yaw <= -180.0) yaw += 360.0;
         while (yaw > 180.0) yaw -= 360.0;
         return yaw;
+    }
+
+    private void Turn(int Ticks) {
+        leftFrontDrive.setDirection(DcMotor.Direction.REVERSE);
+        leftBackDrive.setDirection(DcMotor.Direction.REVERSE);
+        rightFrontDrive.setDirection(DcMotor.Direction.REVERSE);
+        rightBackDrive.setDirection(DcMotor.Direction.REVERSE);
+
+        resetDriveEncoder();
+
+        while (opModeIsActive()) {
+            int newCurrentTicks = leftBackDrive.getCurrentPosition();
+            int newOtherCurrentTicks = rightBackDrive.getCurrentPosition();
+
+            leftFrontDrive.setTargetPosition(Ticks);
+            leftBackDrive.setTargetPosition(Ticks);
+            rightFrontDrive.setTargetPosition(Ticks);
+            rightBackDrive.setTargetPosition(Ticks);
+
+            if (newCurrentTicks < Ticks) {
+                TurnMotors(0.3, true);
+            } else if (newCurrentTicks >= Ticks) {
+                stopMotors();
+                break;
+            }
+            telemetry.addData("Current", newCurrentTicks);
+            telemetry.addData("Other Current", newOtherCurrentTicks);
+            telemetry.update();
+        }
     }
 
     private void resetDriveEncoder() {
