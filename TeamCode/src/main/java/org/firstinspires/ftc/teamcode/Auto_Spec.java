@@ -65,8 +65,8 @@ public class Auto_Spec extends LinearOpMode {
         otherArmMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
         otherArmMotor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
 
-        claw.setPosition(0.2075);
-        other_claw.setPosition(0.1475);
+        claw.setPosition(0.2055);
+        other_claw.setPosition(0.1455);
     }
 
     private void performAutonomousSequence() {
@@ -74,22 +74,27 @@ public class Auto_Spec extends LinearOpMode {
         resetDriveEncoder();
         MoveToTarget(1025);
         stopMotors();
-        sleep(250);
-        /*moveArmToLimit();
+        sleep(150);
+        moveArmToLimit();
         sleep(150);
         moveWristForward();
+        sleep(1500);
         deactivatePID();
-        sleep(150);
+        sleep(50);
         openClaw();
         sleep(150);
-        moveWristBack();*/
+        moveWristBack();
+        sleep(250);
         Turn(540);
         resetDriveEncoder();
         sleep(250);
-        MoveToTarget(2150);
+        MoveToTarget(2450);
         sleep(250);
-        Turn(550);
-        sleep(500);
+        Turn(585);
+        MoveToTarget(370);
+        sleep(350);
+        MoveWristOutForPlayer();
+        sleep(800);
     }
 
     private void moveAlongYAxis(double distance) {
@@ -220,7 +225,6 @@ public class Auto_Spec extends LinearOpMode {
 
     private void moveWristForward() {
         wrist.setPosition(0.475);
-        sleep(1500);
     }
 
     private void moveWristBack() {
@@ -239,9 +243,17 @@ public class Auto_Spec extends LinearOpMode {
         wrist.setPosition(0.55);
     }
 
+    private void MoveWristOutForPlayer() {
+        wrist.setPosition(0.7);
+        sleep(850);
+        closeClaw();
+        sleep(150);
+        moveWristBack();
+    }
+
     private void openClaw() {
-        claw.setPosition(0.095);
-        other_claw.setPosition(0.045);
+        claw.setPosition(0.085);
+        other_claw.setPosition(0.035);
     }
 
     private void closeClaw() {

@@ -52,7 +52,7 @@ public class TeleOP_MAIN extends LinearOpMode {
     // Claw control
     private double newWrist = 0;
     Servo wrist = null;
-    private double newClaw = 0.1655;
+    private double newClaw = 0.1455;
 
     @Override
     public void runOpMode() {
@@ -190,7 +190,7 @@ public class TeleOP_MAIN extends LinearOpMode {
 
             //Detect a bumper press
             if (gamepad2.right_bumper) {  //Close
-                newClaw = 0.1775;
+                newClaw = 0.1435;
             } else if (gamepad2.left_bumper) {  //Open
                 newClaw = 0.08;
             }
