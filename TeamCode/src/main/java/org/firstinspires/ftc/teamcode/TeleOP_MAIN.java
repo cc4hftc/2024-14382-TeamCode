@@ -26,17 +26,20 @@ public class TeleOP_MAIN extends LinearOpMode {
     // PID control constants for the arm
     private double otherTargetPosition;
     private double targetPosition;
+    private double WristTargetPosition;
     private double kP = 0.0001; //0.001
     private double kI = 0.00;
     private double kD = 0.000;
     private double kF = 0.0025;
     private double integral = 0;
+    private double WristIntegral = 0;
     private double lastError = 0;
+    private double WristLastError = 0;
     private double otherlastError = 0;
     private ElapsedTime timer = new ElapsedTime();
     private boolean rightTriggerEnabled = true;
     private boolean leftTriggerEnabled = true;
-
+    private boolean WristMoveAble = true;
     // Drive control constants
     private static final double TURN_SPEED_FACTOR = 0.35;
     private static final double ACCELERATION_RATE = 0.08; // Change in power per update
@@ -51,7 +54,7 @@ public class TeleOP_MAIN extends LinearOpMode {
 
     // Claw control
     private double newWrist = 0;
-    Servo wrist = null;
+    DcMotor wrist = null;
     private double newClaw = 0.1455;
 
     @Override
@@ -69,7 +72,7 @@ public class TeleOP_MAIN extends LinearOpMode {
         // Initialize the claw servo (make sure the name matches the configuration)
         claw = hardwareMap.get(Servo.class, "clawServo");                       // Port 1
         other_claw = hardwareMap.get(Servo.class, "other_clawServo");           // Port 2
-        wrist = hardwareMap.get(Servo.class, "wristServo");                     // Port 0
+        wrist = hardwareMap.get(DcMotor.class, "WristMotor");                   // Port 0       //This isn't a servo anymore it just has the name still
         winch = hardwareMap.get(DcMotor.class, "winch");                        // Port 0
 
         // Set drive motor directions
@@ -82,6 +85,7 @@ public class TeleOP_MAIN extends LinearOpMode {
         claw.setDirection(Servo.Direction.FORWARD);
         other_claw.setDirection(Servo.Direction.REVERSE);
         winch.setDirection(DcMotor.Direction.FORWARD);
+        wrist.setDirection(DcMotor.Direction.REVERSE);
 
 
         // Set motor modes
@@ -90,8 +94,12 @@ public class TeleOP_MAIN extends LinearOpMode {
         armMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
         armMotor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
 
+        wrist.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        wrist.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
         otherTargetPosition = 0;
         targetPosition = 0;
+        WristTargetPosition = 0;
         waitForStart();
         timer.reset();
 
@@ -126,7 +134,9 @@ public class TeleOP_MAIN extends LinearOpMode {
             // Arm control (gamepad2)
             double armPower = gamepad2.left_trigger - gamepad2.right_trigger;
 
+            double WristTicks = wrist.getCurrentPosition();
 
+            double MoveWrist = -gamepad2.right_stick_y;
             //ARM CODE//ARM CODE//ARM CODE//ARM CODE//ARM CODE//ARM CODE//ARM CODE//ARM CODE//
 
             if (rightTriggerEnabled && armPower > 0.1) {
@@ -176,15 +186,30 @@ public class TeleOP_MAIN extends LinearOpMode {
                 rightTriggerEnabled = true;
             }
 
+            if (WristTicks >= 100) {
+                WristMoveAble = false;
+            } else if (WristTicks >=1 && WristTicks <= 99) {
+                WristMoveAble = true;
+            } else if (WristTicks <= 0) {
+                WristMoveAble = false;
+            }
+
             //Set the wrist target position
-            newWrist += (gamepad2.right_stick_y/150);
+            /*newWrist += (gamepad2.right_stick_y/150);
 
             //Set the min and max wrist positions
             newWrist = Math.max(0, Math.min(0.72, newWrist)); // 0.72
 
             //Set the wrist servo position
-            wrist.setPosition(newWrist);
+            wrist.setPosition(newWrist);*/
 
+            if (gamepad2.right_stick_y != 0 && WristMoveAble) {
+                wrist.setPower(MoveWrist*4);
+                WristTargetPosition = wrist.getCurrentPosition();
+                resetWristPID();
+            } else {
+                WristPID();
+            }
 
             //CLAW CODE//CLAW CODE//CLAW CODE//CLAW CODE//CLAW CODE//CLAW CODE//CLAW CODE//
 
@@ -222,7 +247,7 @@ public class TeleOP_MAIN extends LinearOpMode {
             //Grabby debug
             telemetry.addData("--Grabby Data:::",2);
             telemetry.addData("  - Claw Pos", newClaw);
-            telemetry.addData("  - Wrist Pos", newWrist);
+            telemetry.addData("  - Wrist Pos", wrist.getCurrentPosition());
             telemetry.addData(" ", null);
 
             //Chassis debug
@@ -237,10 +262,31 @@ public class TeleOP_MAIN extends LinearOpMode {
             telemetry.addData("  - Right Position", rightBackDrive.getCurrentPosition());
             telemetry.addData(" ", null);
             telemetry.update();
-
-
-
         }
+    }
+
+    private void WristPID() {
+        double wP = 0.0001;
+        double wI = 0.00;
+        double wD = 0.000;
+        double wF = 0.0025;
+        double WristCurrentPosition = (wrist.getCurrentPosition());
+        double WristError = WristTargetPosition - WristCurrentPosition;
+        double WristDeltaTime = timer.seconds();
+        WristIntegral += WristError * WristDeltaTime;
+        double WristDerivative = (WristError - WristLastError) / WristDeltaTime;
+        double WristPower = wP * WristError + wI * integral + wD * WristDerivative + wF;
+
+        wrist.setPower(WristPower);
+
+        WristLastError = WristError;
+        timer.reset();
+    }
+
+    private void resetWristPID() {
+        WristIntegral = 0;
+        WristLastError = 0;
+        timer.reset();
     }
 
     private void pidControl() {

@@ -94,6 +94,10 @@ public class Auto_Spec extends LinearOpMode {
         MoveToTarget(370);
         sleep(350);
         MoveWristOutForPlayer();
+        sleep(500);
+        Turn(-1170);
+        sleep(500);
+        MoveToTarget(1025);
         sleep(800);
     }
 
