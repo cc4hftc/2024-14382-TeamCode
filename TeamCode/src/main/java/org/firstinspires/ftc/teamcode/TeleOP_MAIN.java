@@ -72,7 +72,7 @@ public class TeleOP_MAIN extends LinearOpMode {
         // Initialize the claw servo (make sure the name matches the configuration)
         claw = hardwareMap.get(Servo.class, "clawServo");                       // Port 1
         other_claw = hardwareMap.get(Servo.class, "other_clawServo");           // Port 2
-        wrist = hardwareMap.get(DcMotor.class, "WristMotor");                   // Port 0       //This isn't a servo anymore it just has the name still
+        wrist = hardwareMap.get(DcMotor.class, "WristMotor");                   // Port 0
         winch = hardwareMap.get(DcMotor.class, "winch");                        // Port 0
 
         // Set drive motor directions
@@ -186,9 +186,9 @@ public class TeleOP_MAIN extends LinearOpMode {
                 rightTriggerEnabled = true;
             }
 
-            if (WristTicks >= 100) {
+            if (WristTicks >= 1000) {
                 WristMoveAble = false;
-            } else if (WristTicks >=1 && WristTicks <= 99) {
+            } else if (WristTicks >=1 && WristTicks <= 999) {
                 WristMoveAble = true;
             } else if (WristTicks <= 0) {
                 WristMoveAble = false;
@@ -203,8 +203,8 @@ public class TeleOP_MAIN extends LinearOpMode {
             //Set the wrist servo position
             wrist.setPosition(newWrist);*/
 
-            if (gamepad2.right_stick_y != 0 && WristMoveAble) {
-                wrist.setPower(MoveWrist*4);
+            if (gamepad2.right_stick_y > 0.1 || gamepad2.right_stick_y < -0.1) {
+                wrist.setPower(MoveWrist/6);
                 WristTargetPosition = wrist.getCurrentPosition();
                 resetWristPID();
             } else {
@@ -248,6 +248,7 @@ public class TeleOP_MAIN extends LinearOpMode {
             telemetry.addData("--Grabby Data:::",2);
             telemetry.addData("  - Claw Pos", newClaw);
             telemetry.addData("  - Wrist Pos", wrist.getCurrentPosition());
+            telemetry.addData("  - Wrist Target", WristTargetPosition);
             telemetry.addData(" ", null);
 
             //Chassis debug
@@ -266,10 +267,11 @@ public class TeleOP_MAIN extends LinearOpMode {
     }
 
     private void WristPID() {
+        int Wrist = wrist.getCurrentPosition();
         double wP = 0.0001;
-        double wI = 0.00;
-        double wD = 0.000;
-        double wF = 0.0025;
+        double wI = 0.001;
+        double wD = 0.0001;
+        double wF = 0.05;
         double WristCurrentPosition = (wrist.getCurrentPosition());
         double WristError = WristTargetPosition - WristCurrentPosition;
         double WristDeltaTime = timer.seconds();
