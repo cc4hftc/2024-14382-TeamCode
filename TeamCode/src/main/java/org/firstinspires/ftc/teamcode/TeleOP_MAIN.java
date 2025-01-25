@@ -205,7 +205,6 @@ public class TeleOP_MAIN extends LinearOpMode {
 
             if (gamepad2.right_stick_y > 0.1 || gamepad2.right_stick_y < -0.1) {
                 wrist.setPower(MoveWrist/6);
-                WristTargetPosition = wrist.getCurrentPosition();
                 resetWristPID();
             } else {
                 WristPID();
@@ -268,6 +267,7 @@ public class TeleOP_MAIN extends LinearOpMode {
 
     private void WristPID() {
         int Wrist = wrist.getCurrentPosition();
+        WristTargetPosition = wrist.getCurrentPosition();
         double wP = 0.0001;
         double wI = 0.001;
         double wD = 0.0001;
