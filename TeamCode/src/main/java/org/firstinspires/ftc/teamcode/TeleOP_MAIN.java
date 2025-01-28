@@ -186,9 +186,9 @@ public class TeleOP_MAIN extends LinearOpMode {
                 rightTriggerEnabled = true;
             }
 
-            if (WristTicks >= 1000) {
+            if (WristTicks >= 150) {
                 WristMoveAble = false;
-            } else if (WristTicks >=1 && WristTicks <= 999) {
+            } else if (WristTicks >=1 && WristTicks <= 149) {
                 WristMoveAble = true;
             } else if (WristTicks <= 0) {
                 WristMoveAble = false;
@@ -196,16 +196,24 @@ public class TeleOP_MAIN extends LinearOpMode {
 
             // Wrist control with updated logic
             final double JOYSTICK_DEADZONE = 0.1;
-            double joystickInput = gamepad2.right_stick_y;
+            double joystickInput = -gamepad2.right_stick_y;
 
-            if (Math.abs(joystickInput) > JOYSTICK_DEADZONE) {
+            boolean wristPIDActive;
+
+            if (Math.abs(joystickInput) > JOYSTICK_DEADZONE && WristMoveAble) {
                 // Manual wrist movement
+                wristPIDActive = false;
                 wrist.setPower(joystickInput * 0.1);
                 WristTargetPosition = wrist.getCurrentPosition();
                 resetWristPID();
             } else {
                 // Use PID control for precise positioning
-                WristTargetPosition = wrist.getCurrentPosition();
+                wristPIDActive = true;
+                //WristTargetPosition = wrist.getCurrentPosition();
+                //WristPID();
+            }
+
+            if (wristPIDActive) {
                 WristPID();
             }
 
@@ -246,6 +254,8 @@ public class TeleOP_MAIN extends LinearOpMode {
             telemetry.addData("  - Wrist Pos", wrist.getCurrentPosition());
             telemetry.addData("  - Wrist Target", WristTargetPosition);
             telemetry.addData("  - Stick", gamepad2.right_stick_y);
+            telemetry.addData("  - wristPIDActive", wristPIDActive);
+            telemetry.addData("  - WristIntegral", WristIntegral);
             telemetry.addData(" ", null);
 
             //Chassis debug
@@ -266,7 +276,8 @@ public class TeleOP_MAIN extends LinearOpMode {
     private void WristPID() {
         double WristCurrentPosition = wrist.getCurrentPosition();
         double WristError = WristTargetPosition - WristCurrentPosition;
-        double WristDeltaTime = timer.seconds();
+        //double WristDeltaTime = timer.seconds();
+        double WristDeltaTime = 0.01;
         WristIntegral += WristError * WristDeltaTime;
         double WristDerivative = (WristError - WristLastError) / WristDeltaTime;
         double WristPower = 0.00001 * WristError + 0.00 * WristIntegral + 0.000 * WristDerivative + 0.05;
