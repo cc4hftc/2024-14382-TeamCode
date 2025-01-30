@@ -31,6 +31,11 @@ public class TeleOP_MAIN extends LinearOpMode {
     private double kI = 0.00;
     private double kD = 0.000;
     private double kF = 0.0025;
+    private double wP = 1;
+    private double wI = 0.1;
+    private double wD = 10;
+    private double wF = 0.5;
+    private int SitckPosition = 0;
     private double integral = 0;
     private double WristIntegral = 0;
     private double lastError = 0;
@@ -196,26 +201,18 @@ public class TeleOP_MAIN extends LinearOpMode {
 
             // Wrist control with updated logic
             final double JOYSTICK_DEADZONE = 0.1;
-            double joystickInput = -gamepad2.right_stick_y;
+            //int joystickInput = -gamepad2.right_stick_y;
 
-            boolean wristPIDActive;
-
-            if (Math.abs(joystickInput) > JOYSTICK_DEADZONE && WristMoveAble) {
+            if (SitckPosition > 0) {
                 // Manual wrist movement
-                wristPIDActive = false;
-                wrist.setPower(joystickInput * 0.1);
-                WristTargetPosition = wrist.getCurrentPosition();
+                wrist.setTargetPosition(SitckPosition);
+                WristTargetPosition = wrist.getTargetPosition();
                 resetWristPID();
-            } else {
-                // Use PID control for precise positioning
-                wristPIDActive = true;
-                //WristTargetPosition = wrist.getCurrentPosition();
-                //WristPID();
             }
 
-            if (wristPIDActive) {
-                WristPID();
-            }
+            WristPID();
+
+            StickToInt();
 
             //CLAW CODE//CLAW CODE//CLAW CODE//CLAW CODE//CLAW CODE//CLAW CODE//CLAW CODE//
 
@@ -254,8 +251,8 @@ public class TeleOP_MAIN extends LinearOpMode {
             telemetry.addData("  - Wrist Pos", wrist.getCurrentPosition());
             telemetry.addData("  - Wrist Target", WristTargetPosition);
             telemetry.addData("  - Stick", gamepad2.right_stick_y);
-            telemetry.addData("  - wristPIDActive", wristPIDActive);
             telemetry.addData("  - WristIntegral", WristIntegral);
+            telemetry.addData("  - SitckPosition", SitckPosition);
             telemetry.addData(" ", null);
 
             //Chassis debug
@@ -276,11 +273,10 @@ public class TeleOP_MAIN extends LinearOpMode {
     private void WristPID() {
         double WristCurrentPosition = wrist.getCurrentPosition();
         double WristError = WristTargetPosition - WristCurrentPosition;
-        //double WristDeltaTime = timer.seconds();
-        double WristDeltaTime = 0.01;
+        double WristDeltaTime = timer.seconds();
         WristIntegral += WristError * WristDeltaTime;
         double WristDerivative = (WristError - WristLastError) / WristDeltaTime;
-        double WristPower = 0.00001 * WristError + 0.00 * WristIntegral + 0.000 * WristDerivative + 0.05;
+        double WristPower = wP * WristError + wI * WristIntegral + wD * WristDerivative + wF;
 
         wrist.setPower(WristPower);
 
@@ -314,6 +310,11 @@ public class TeleOP_MAIN extends LinearOpMode {
         timer.reset();
     }
 
+    private void StickToInt() {
+        if (gamepad2.right_stick_y < 0) {
+            SitckPosition += 1;
+        }
+    }
 
     private void resetPID() {
         integral = 0;
