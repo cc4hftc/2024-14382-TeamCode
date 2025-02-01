@@ -6,78 +6,102 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 @TeleOp
-
 public class PID extends LinearOpMode {
-    DcMotor wrist = null;
+    // Motor
+    private DcMotor wrist = null;
 
+    // Timing
     private ElapsedTime timer = new ElapsedTime();
 
-    private double kP = 0.005;
-    private double kI = 0.0;
-    private double kD = 0.0;
-    private double kF = 0.005;
-    private double TargetPosition;
+    // PID constants (you will need to tune these!)
+    private double kP = 0.001;   // Increase if response is too weak, decrease if oscillating
+    private double kI = 0.0;     // Increase if steady-state error remains
+    private double kD = 0.0;     // Increase if overshoot or oscillation is a problem
+    private double kF = 0.0;     // Use if you need a constant offset to hold against gravity
+
+    // PID Variables
+    private double targetPosition = 0;  // The encoder position we want to hold
     private double integral = 0;
     private double lastError = 0;
-    private int StickPosition = 0;
 
     @Override
     public void runOpMode() {
+        // Initialize the wrist motor
         wrist = hardwareMap.get(DcMotor.class, "WristMotor");
-
         wrist.setDirection(DcMotor.Direction.FORWARD);
-
         wrist.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         wrist.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
+        // Wait for the Start button
         waitForStart();
         timer.reset();
 
+        // Set the initial target to the current position, so it doesn't jump at the start
+        targetPosition = wrist.getCurrentPosition();
+
         while (opModeIsActive()) {
+            // Read the current encoder position
+            double currentPosition = wrist.getCurrentPosition();
+            // Invert stick if necessary; adjust scale as needed
+            double stickInput = -gamepad2.right_stick_y;
 
-            telemetry.addData("  - Wrist Pos", wrist.getCurrentPosition());
-            telemetry.addData("  - Wrist Target", TargetPosition);
-            telemetry.addData("  - Stick", gamepad2.right_stick_y);
-            telemetry.addData("  - Integral", integral);
-            telemetry.addData("  - StickPosition", StickPosition);
-            telemetry.update();
-
-            if (StickPosition > 0) {
-                // Manual wrist movement
-                wrist.setTargetPosition(StickPosition);
-                TargetPosition = wrist.getTargetPosition();
-                resetWristPID();
+            // Manual adjust of the target if the stick is moved
+            if (Math.abs(stickInput) > 0.1) {
+                // Adjust target up/down by some scaled value each loop
+                targetPosition += (stickInput * 10);  // <-- TUNE this scaling factor
+                resetWristPID(); // Clear integrator and derivative after a manual move
+            } else {
+                // If the stick is near zero, hold position with PID
+                wristPID(currentPosition);
             }
 
-            WristPID();
-
-            StickToInt();
+            // Send useful data to driver station
+            telemetry.addData("Current Position", currentPosition);
+            telemetry.addData("Target Position", targetPosition);
+            telemetry.addData("Error", targetPosition - currentPosition);
+            telemetry.addData("kP", kP);
+            telemetry.addData("kI", kI);
+            telemetry.addData("kD", kD);
+            telemetry.addData("kF", kF);
+            telemetry.update();
         }
     }
 
-    private void WristPID() {
-        double CurrentPosition = wrist.getCurrentPosition();
-        double Error = TargetPosition - CurrentPosition;
-        double DeltaTime = timer.seconds();
-        integral += Error * DeltaTime;
-        double WristDerivative = (Error - lastError) / DeltaTime;
-        double WristPower = kP * Error + kI * integral + kD * WristDerivative + kF;
+    /**
+     * PID control method for the wrist.
+     */
+    private void wristPID(double currentPosition) {
+        double error = targetPosition - currentPosition;
+        double dt = timer.seconds();
 
-        wrist.setPower(WristPower);
+        // Integral
+        integral += (error * dt);
 
-        lastError = Error;
+        // Derivative
+        double derivative = (error - lastError) / dt;
+
+        // PID output
+        double power = kP * error + kI * integral + kD * derivative + kF;
+
+        // Optional power clamp between -1 and 1
+        power = Math.max(-1.0, Math.min(1.0, power));
+
+        // Apply power
+        wrist.setPower(power);
+
+        // Prepare for next iteration
+        lastError = error;
         timer.reset();
     }
 
+    /**
+     * Resets integral and derivative terms
+     * whenever we switch back to a 'new' control mode
+     * (e.g., from manual to PID hold).
+     */
     private void resetWristPID() {
         integral = 0;
         lastError = 0;
         timer.reset();
-    }
-
-    private void StickToInt() {
-        if (gamepad2.right_stick_y < 0) {
-            StickPosition += 1;
-        }
     }
 }
