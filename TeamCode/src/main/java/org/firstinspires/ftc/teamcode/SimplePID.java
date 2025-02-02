@@ -1,13 +1,14 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 @TeleOp
 
 public class SimplePID extends LinearOpMode {
-    private DcMotor wrist = null;
+    private DcMotorEx wrist = null;
 
     private double targetPosition = 0;
 
@@ -19,10 +20,10 @@ public class SimplePID extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-        wrist = hardwareMap.get(DcMotor.class, "WristMotor");
-        wrist.setDirection(DcMotor.Direction.FORWARD);
-        wrist.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        wrist.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        wrist = hardwareMap.get(DcMotorEx.class, "WristMotor");
+        wrist.setDirection(DcMotorEx.Direction.FORWARD);
+        wrist.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        wrist.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
 
         waitForStart();
 
@@ -50,6 +51,6 @@ public class SimplePID extends LinearOpMode {
     private void PID() {
         motorPower = ((targetPosition - currentPosition)/Speed);
 
-        wrist.setPower(motorPower);
+        wrist.setVelocity(motorPower);
     }
 }

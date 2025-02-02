@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -14,10 +15,10 @@ public class PID extends LinearOpMode {
     private ElapsedTime timer = new ElapsedTime();
 
     // PID constants (you will need to tune these!)
-    private double kP = 6;       // Increase if response is too weak, decrease if oscillating
+    private double kP = 16;       // Increase if response is too weak, decrease if oscillating
     private double kI = 0.00;      // Increase if steady-state error remains
-    private double kD = 1;   //0.25    // Increase if overshoot or oscillation is a problem
-    private double kF = 0.003;      // Use if you need a constant offset to hold against gravity
+    private double kD = 4;       // Increase if overshoot or oscillation is a problem
+    private double kF = 0.06;      // Use if you need a constant offset to hold against gravity
 
     // PID Variables
     private double targetPosition = 0;  // The encoder position we want to hold
@@ -88,7 +89,7 @@ public class PID extends LinearOpMode {
             return;
         }
 
-        if (error == 0 || error == 1) {
+        if (error == 0 || error == 1 || error == -1) {
             wrist.setPower(0);
             return;
         }
