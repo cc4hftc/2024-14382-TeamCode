@@ -29,6 +29,8 @@ public class FtcLibPidf extends LinearOpMode {
 
         wrist = hardwareMap.get(DcMotorEx.class, "WristMotor");
 
+        waitForStart();
+
         while (opModeIsActive()) {
             controller.setPID(p, i, d);
             int wristPos = wrist.getCurrentPosition();
