@@ -1,6 +1,11 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -8,12 +13,19 @@ import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
+@Config
 @Autonomous
 public class Auto_Spec extends LinearOpMode {
+    private PIDController controller;
+    public static double p = 0.025, i = 0.3, d = 0.001;
+    public static double f = 0.075;
+    public static int target = 0;
+    private final double ticks_in_degree = 288 / 180.0;
     private DcMotor leftFrontDrive, leftBackDrive, rightFrontDrive, rightBackDrive;
     private IMU imu;
     private DcMotorEx armMotor, otherArmMotor;
-    private Servo claw, other_claw, wrist;
+    private DcMotorEx wrist;
+    private Servo claw, other_claw;
     private double targetPosition, otherTargetPosition;
     private double kP = 0.01, kI = 0.00, kD = 0.000, kF = 0.01;
     private double integral = 0, lastError = 0, otherLastError = 0;
@@ -23,10 +35,21 @@ public class Auto_Spec extends LinearOpMode {
 
     @Override
     public void runOpMode() {
+        PIDAndTelemetry();
         initializeHardware();
         waitForStart();
 
         while (opModeIsActive()) {
+            controller.setPID(p, i, d);
+            int wristPos = wrist.getCurrentPosition();
+            double pid = controller.calculate(wristPos, target);
+            double ff = Math.cos(Math.toRadians(target / ticks_in_degree)) * f;
+
+            double power = pid + ff;
+
+            wrist.setPower(power);
+
+            telemetryData();
             performAutonomousSequence();
             break;
         }
@@ -51,14 +74,15 @@ public class Auto_Spec extends LinearOpMode {
         // Initialize arm and servos
         armMotor = hardwareMap.get(DcMotorEx.class, "arm_motor");
         otherArmMotor = hardwareMap.get(DcMotorEx.class, "arm_motor2");
+        wrist = hardwareMap.get(DcMotorEx.class, "WristMotor");
         claw = hardwareMap.get(Servo.class, "clawServo");
         other_claw = hardwareMap.get(Servo.class, "other_clawServo");
-        wrist = hardwareMap.get(Servo.class, "wristServo");
 
         armMotor.setDirection(DcMotorEx.Direction.FORWARD);
         otherArmMotor.setDirection(DcMotorEx.Direction.REVERSE);
         claw.setDirection(Servo.Direction.FORWARD);
         other_claw.setDirection(Servo.Direction.REVERSE);
+        wrist.setDirection(DcMotorEx.Direction.FORWARD);
 
         armMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
         armMotor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
@@ -228,11 +252,11 @@ public class Auto_Spec extends LinearOpMode {
     }
 
     private void moveWristForward() {
-        wrist.setPosition(0.475);
+        target = 60;
     }
 
     private void moveWristBack() {
-        wrist.setPosition(0);
+        target = 0;
     }
 
     private void deactivatePID() {
@@ -244,11 +268,11 @@ public class Auto_Spec extends LinearOpMode {
     }
 
     private void clipClaw() {
-        wrist.setPosition(0.55);
+        target = 60;
     }
 
     private void MoveWristOutForPlayer() {
-        wrist.setPosition(0.7);
+        wrist.setTargetPosition(100);
         sleep(850);
         closeClaw();
         sleep(150);
@@ -319,6 +343,17 @@ public class Auto_Spec extends LinearOpMode {
         }
     }
 
+    private void PIDAndTelemetry() {
+        controller = new PIDController(p, i, d);
+        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
+    }
+
+    /*private void WristPID() {
+        while (opModeIsActive()) {
+
+        }
+    }*/
+
     private void resetDriveEncoder() {
         leftFrontDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         leftBackDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -328,6 +363,12 @@ public class Auto_Spec extends LinearOpMode {
         leftBackDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightFrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightBackDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    }
+
+    private void telemetryData() {
+        telemetry.addData("Pos ", wrist.getCurrentPosition());
+        telemetry.addData("Target ", target);
+        telemetry.update();
     }
 
     private void pidControl() {

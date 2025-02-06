@@ -13,8 +13,12 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 public class FtcLibPidf extends LinearOpMode {
     private PIDController controller;
 
-    public static double p = 0, i = 0, d = 0;
-    public static double f = 0;
+    public static double p = 0.025, i = 0.3, d = 0.001;
+    public static double f = 0.075;
+
+    public static long ST = 2;
+
+    public static int limit = 150;
 
     public static int target = 0;
 
@@ -57,23 +61,32 @@ public class FtcLibPidf extends LinearOpMode {
 
     private void StickToInt() {
         double stick = gamepad2.right_stick_y;
+        if (StickPosition >= limit) {
+            StickPosition-=1;
+        }
 
         if (stick < -0.1) {
             StickPosition += 1;
-            sleep(20);
+            sleep(ST);
         } else if (stick > 0.1) {
             StickPosition -= 1;
-            sleep(20);
+            sleep(ST);
         } else if (stick == 0) {
             // Do nothing
         }
-    }
 
-    private void WristLimit(int limit) {
-        if (wrist.getCurrentPosition() >= limit) {
-            wrist.setTargetPosition(limit-1);
-        } /*else if (wrist.getCurrentPosition() <= 0) {
+        /*if (wrist.getTargetPosition() >= limit) {
+            wrist.setTargetPosition(GoodPos);
+        } else if (wrist.getTargetPosition() <= 0) {
             wrist.setTargetPosition(1);
         }*/
     }
+
+    /*private void WristLimit(int limit) {
+        if (wrist.getCurrentPosition() >= limit) {
+            wrist.setTargetPosition(limit-1);
+        } else if (wrist.getCurrentPosition() <= 0) {
+            wrist.setTargetPosition(1);
+        }
+    }*/
 }
