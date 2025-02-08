@@ -16,8 +16,8 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 @Autonomous
 public class Auto_Spec extends LinearOpMode {
     private PIDController controller;
-    public static double p = 0, i = 0, d = 0;
-    public static double f = 0;
+    public static double p = 0.001, i = 0, d = 0;
+    public static double f = 0.004;
     public static int target = 0;
     private final double ticks_in_degree = 288 / 180.0;
     private DcMotor leftFrontDrive, leftBackDrive, rightFrontDrive, rightBackDrive;
@@ -40,18 +40,7 @@ public class Auto_Spec extends LinearOpMode {
         waitForStart();
 
         while (opModeIsActive()) {
-            wrist.setTargetPosition(target);
-            controller.setPID(p, i, d);
-            int wristPos = wrist.getCurrentPosition();
-            double pid = controller.calculate(wrist.getCurrentPosition(), target);
-            double ff = Math.cos(Math.toRadians(target / ticks_in_degree)) * f;
-
-            double power = pid + ff;
-
-            wrist.setPower(power);
-
             performAutonomousSequence();
-            break;
         }
     }
 
@@ -82,17 +71,17 @@ public class Auto_Spec extends LinearOpMode {
         otherArmMotor.setDirection(DcMotorEx.Direction.REVERSE);
         claw.setDirection(Servo.Direction.FORWARD);
         other_claw.setDirection(Servo.Direction.REVERSE);
-        //wrist.setDirection(DcMotorEx.Direction.FORWARD);
+        wrist.setDirection(DcMotorEx.Direction.FORWARD);
 
         armMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
         armMotor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
         otherArmMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
         otherArmMotor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
-        //wrist.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        //wrist.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        wrist.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        wrist.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
 
-        claw.setPosition(0.2055);
-        other_claw.setPosition(0.1455);
+        claw.setPosition(0.2075);
+        other_claw.setPosition(0.1475);
     }
 
     private void performAutonomousSequence() {
@@ -100,11 +89,11 @@ public class Auto_Spec extends LinearOpMode {
         resetDriveEncoder();
         MoveToTarget(1025);
         stopMotors();
-        /*sleep(150);
+        sleep(150);
         moveArmToLimit();
-        sleep(150);*/
+        sleep(2000);
         moveWristForward();
-        sleep(1500000);
+        sleep(150);
         deactivatePID();
         sleep(50);
         openClaw();
@@ -254,18 +243,46 @@ public class Auto_Spec extends LinearOpMode {
     }
 
     private void moveWristForward() {
+        target = 100;
+        wrist.setTargetPosition(target);
         while (opModeIsActive()) {
-            target = 60;
-            wrist.setTargetPosition(target);
-            telemetry.addData("Pos ", wrist.getCurrentPosition());
-            telemetry.addData("Target pos ", wrist.getTargetPosition());
-            telemetry.addData("Target", target);
+            controller.setPID(p, i, d);
+            int wristPos = wrist.getCurrentPosition();
+            double pid = controller.calculate(wristPos, target);
+            double ff = Math.cos(Math.toRadians(target / ticks_in_degree)) * f;
+
+            double power = pid + ff;
+
+            wrist.setPower(power);
+
+            if (wristPos > target) {
+                break;
+            }
+
+            telemetry.addData("Pos ", wristPos);
+            telemetry.addData("Target ", target);
             telemetry.update();
         }
     }
 
     private void moveWristBack() {
         target = 0;
+        wrist.setTargetPosition(target);
+
+        while (opModeIsActive()) {
+            controller.setPID(p, i, d);
+            int wristPos = wrist.getCurrentPosition();
+            double pid = controller.calculate(wristPos, target);
+            double ff = Math.cos(Math.toRadians(target / ticks_in_degree)) * f;
+
+            double power = pid + ff;
+
+            wrist.setPower(power);
+
+            telemetry.addData("Pos ", wristPos);
+            telemetry.addData("Target ", target);
+            telemetry.update();
+        }
     }
 
     private void deactivatePID() {
@@ -281,7 +298,8 @@ public class Auto_Spec extends LinearOpMode {
     }
 
     private void MoveWristOutForPlayer() {
-        wrist.setTargetPosition(100);
+        target = 100;
+        wrist.setTargetPosition(target);
         sleep(850);
         closeClaw();
         sleep(150);

@@ -16,7 +16,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 public class TeleOP_MAIN extends LinearOpMode {
     private PIDController WristController;
 
-    public static double wP = 0.025, wI = 0.3, wD = 0.001;
+    public static double wP = 0.025, wI = 0, wD = 0.01;
     public static double wF = 0.075;
 
     public static long ST = 2;
@@ -116,6 +116,8 @@ public class TeleOP_MAIN extends LinearOpMode {
         otherArmMotor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
         armMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
         armMotor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        wrist.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        wrist.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
 
         otherTargetPosition = 0;
         targetPosition = 0;
@@ -262,7 +264,7 @@ public class TeleOP_MAIN extends LinearOpMode {
             //DEBUG CODE//DEBUG CODE//DEBUG CODE//DEBUG CODE//DEBUG CODE//DEBUG CODE//DEBUG CODE//
 
             //Arm debug
-            /*telemetry.addData("--Arm Data:::",4);
+            telemetry.addData("--Arm Data:::",4);
             telemetry.addData("  - Current otherArm Pos", otherArmMotor.getCurrentPosition());
             telemetry.addData("  - Current Arm pos", armMotor.getCurrentPosition());
             telemetry.addData("  - Target Arm Pos", targetPosition);
@@ -275,14 +277,14 @@ public class TeleOP_MAIN extends LinearOpMode {
             telemetry.addData("  - kI", kI);
             telemetry.addData("  - kD", kD);
             telemetry.addData("  - kF", kF);
-            //telemetry.addData(" ", null);*/
+            //telemetry.addData(" ", null);
 
             //Grabby debug
-            /*telemetry.addData("--Grabby Data:::",2);
+            telemetry.addData("--Grabby Data:::",2);
             telemetry.addData("  - Claw Pos", newClaw);
             telemetry.addData("  - Wrist Pos", wrist.getCurrentPosition());
             telemetry.addData("  - Wrist Target", WristTargetPosition);
-            telemetry.addData("  - Stick", gamepad2.right_stick_y);*/
+            telemetry.addData("  - Stick", gamepad2.right_stick_y);
             telemetry.addData("  - Pos ", wristPos);
             telemetry.addData("  - Target ", target);
             //telemetry.addData("  - WristIntegral", WristIntegral);
@@ -290,7 +292,7 @@ public class TeleOP_MAIN extends LinearOpMode {
             //telemetry.addData(" ", null);
 
             //Chassis debug
-            /*telemetry.addData("--Chassis:::",4);
+            telemetry.addData("--Chassis:::",4);
             telemetry.addData("  - Front Power", leftFrontPower);
             telemetry.addData("  - Back Power", rightFrontPower);
             telemetry.addData("  - Left Power", leftBackPower);
@@ -299,7 +301,7 @@ public class TeleOP_MAIN extends LinearOpMode {
             telemetry.addData("  - Back Position", leftFrontDrive.getCurrentPosition());
             telemetry.addData("  - Left Position", leftBackDrive.getCurrentPosition());
             telemetry.addData("  - Right Position", rightBackDrive.getCurrentPosition());
-            //telemetry.addData(" ", null);*/
+            //telemetry.addData(" ", null);
             telemetry.update();
         }
     }
@@ -350,10 +352,10 @@ public class TeleOP_MAIN extends LinearOpMode {
             StickPosition-=1;
         }
 
-        if (stick < -0.1) {
+        if (stick > 0.1) {
             StickPosition += 2;
             sleep(ST);
-        } else if (stick > 0.1) {
+        } else if (stick < -0.1) {
             StickPosition -= 2;
             sleep(ST);
         } else if (stick == 0) {
