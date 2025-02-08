@@ -5,7 +5,6 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -17,8 +16,8 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 @Autonomous
 public class Auto_Spec extends LinearOpMode {
     private PIDController controller;
-    public static double p = 0.025, i = 0.3, d = 0.001;
-    public static double f = 0.075;
+    public static double p = 0, i = 0, d = 0;
+    public static double f = 0;
     public static int target = 0;
     private final double ticks_in_degree = 288 / 180.0;
     private DcMotor leftFrontDrive, leftBackDrive, rightFrontDrive, rightBackDrive;
@@ -35,21 +34,22 @@ public class Auto_Spec extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-        PIDAndTelemetry();
+        controller = new PIDController(p, i, d);
+        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         initializeHardware();
         waitForStart();
 
         while (opModeIsActive()) {
+            wrist.setTargetPosition(target);
             controller.setPID(p, i, d);
             int wristPos = wrist.getCurrentPosition();
-            double pid = controller.calculate(wristPos, target);
+            double pid = controller.calculate(wrist.getCurrentPosition(), target);
             double ff = Math.cos(Math.toRadians(target / ticks_in_degree)) * f;
 
             double power = pid + ff;
 
             wrist.setPower(power);
 
-            telemetryData();
             performAutonomousSequence();
             break;
         }
@@ -82,12 +82,14 @@ public class Auto_Spec extends LinearOpMode {
         otherArmMotor.setDirection(DcMotorEx.Direction.REVERSE);
         claw.setDirection(Servo.Direction.FORWARD);
         other_claw.setDirection(Servo.Direction.REVERSE);
-        wrist.setDirection(DcMotorEx.Direction.FORWARD);
+        //wrist.setDirection(DcMotorEx.Direction.FORWARD);
 
         armMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
         armMotor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
         otherArmMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
         otherArmMotor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        //wrist.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        //wrist.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
 
         claw.setPosition(0.2055);
         other_claw.setPosition(0.1455);
@@ -98,11 +100,11 @@ public class Auto_Spec extends LinearOpMode {
         resetDriveEncoder();
         MoveToTarget(1025);
         stopMotors();
-        sleep(150);
+        /*sleep(150);
         moveArmToLimit();
-        sleep(150);
+        sleep(150);*/
         moveWristForward();
-        sleep(1500);
+        sleep(1500000);
         deactivatePID();
         sleep(50);
         openClaw();
@@ -252,7 +254,14 @@ public class Auto_Spec extends LinearOpMode {
     }
 
     private void moveWristForward() {
-        target = 60;
+        while (opModeIsActive()) {
+            target = 60;
+            wrist.setTargetPosition(target);
+            telemetry.addData("Pos ", wrist.getCurrentPosition());
+            telemetry.addData("Target pos ", wrist.getTargetPosition());
+            telemetry.addData("Target", target);
+            telemetry.update();
+        }
     }
 
     private void moveWristBack() {
@@ -344,8 +353,7 @@ public class Auto_Spec extends LinearOpMode {
     }
 
     private void PIDAndTelemetry() {
-        controller = new PIDController(p, i, d);
-        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
+
     }
 
     /*private void WristPID() {
@@ -366,9 +374,7 @@ public class Auto_Spec extends LinearOpMode {
     }
 
     private void telemetryData() {
-        telemetry.addData("Pos ", wrist.getCurrentPosition());
-        telemetry.addData("Target ", target);
-        telemetry.update();
+
     }
 
     private void pidControl() {
