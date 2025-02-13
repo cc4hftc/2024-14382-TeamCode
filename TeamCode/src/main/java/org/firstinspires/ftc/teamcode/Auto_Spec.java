@@ -16,7 +16,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 @Autonomous
 public class Auto_Spec extends LinearOpMode {
     private PIDController controller;
-    public static double p = 0.001, i = 0, d = 0;
+    public static double p = 0.003, i = 0, d = 0;
     public static double f = 0.004;
     public static int target = 0;
     private final double ticks_in_degree = 288 / 180.0;
@@ -87,7 +87,7 @@ public class Auto_Spec extends LinearOpMode {
     private void performAutonomousSequence() {
         //moveAlongYAxis(0.685);
         resetDriveEncoder();
-        MoveToTarget(1025);
+        MoveToTarget(950);
         stopMotors();
         sleep(150);
         moveArmToLimit();
@@ -95,7 +95,7 @@ public class Auto_Spec extends LinearOpMode {
         moveWristForward();
         sleep(150);
         deactivatePID();
-        sleep(50);
+        sleep(25);
         openClaw();
         sleep(150);
         moveWristBack();
@@ -106,7 +106,7 @@ public class Auto_Spec extends LinearOpMode {
         MoveToTarget(2450);
         sleep(250);
         Turn(585);
-        MoveToTarget(370);
+        MoveToTarget(380);
         sleep(350);
         MoveWristOutForPlayer();
         sleep(500);
@@ -148,7 +148,20 @@ public class Auto_Spec extends LinearOpMode {
         armMotor.setPower(0.25);
         otherArmMotor.setPower(0.25);
 
+
         while (opModeIsActive() && (armMotor.isBusy() || otherArmMotor.isBusy())) {
+            if (armMotor.getCurrentPosition() > limit && armMotor.getCurrentPosition() < 195) {
+                break;
+            } else if (armMotor.getCurrentPosition() < limit && armMotor.getCurrentPosition() > 175) {
+                break;
+            }
+
+            if (otherArmMotor.getCurrentPosition() > limit && otherArmMotor.getCurrentPosition() < 195) {
+                break;
+            } else if (otherArmMotor.getCurrentPosition() < limit && otherArmMotor.getCurrentPosition() > 175) {
+                break;
+            }
+
             telemetry.addData("Arm1 Target/Pos", "%d/%d", armMotor.getTargetPosition(), armMotor.getCurrentPosition());
             telemetry.addData("Arm2 Target/Pos", "%d/%d", otherArmMotor.getTargetPosition(), otherArmMotor.getCurrentPosition());
             telemetry.update();
@@ -178,7 +191,7 @@ public class Auto_Spec extends LinearOpMode {
             rightFrontDrive.setTargetPosition(0);
 
             if (currentTicks < targetTicks) {
-                setBackMotorPowers(0.3);
+                setBackMotorPowers(0.5);
             } else if (currentTicks >= targetTicks) {
                 stopMotors();
                 break;
@@ -227,8 +240,8 @@ public class Auto_Spec extends LinearOpMode {
         armMotor.setTargetPosition(limit);
         otherArmMotor.setTargetPosition(limit);
 
-        armMotor.setPower(-0.45);
-        otherArmMotor.setPower(-0.45);
+        armMotor.setPower(-1);
+        otherArmMotor.setPower(-1);
 
         while (opModeIsActive() && (armMotor.isBusy() || otherArmMotor.isBusy())) {
             telemetry.addData("Arm1 Target/Pos", "%d/%d", armMotor.getTargetPosition(), armMotor.getCurrentPosition());
@@ -243,7 +256,7 @@ public class Auto_Spec extends LinearOpMode {
     }
 
     private void moveWristForward() {
-        target = 100;
+        target = 95;
         wrist.setTargetPosition(target);
         while (opModeIsActive()) {
             controller.setPID(p, i, d);
@@ -253,7 +266,7 @@ public class Auto_Spec extends LinearOpMode {
 
             double power = pid + ff;
 
-            wrist.setPower(power);
+            wrist.setPower(power*1.5);
 
             if (wristPos > target) {
                 break;
@@ -279,6 +292,14 @@ public class Auto_Spec extends LinearOpMode {
 
             wrist.setPower(power);
 
+            if (wristPos < 0) {
+                break;
+            }
+
+            if (wristPos > 0 && wristPos < 6) {
+                break;
+            }
+
             telemetry.addData("Pos ", wristPos);
             telemetry.addData("Target ", target);
             telemetry.update();
@@ -298,8 +319,22 @@ public class Auto_Spec extends LinearOpMode {
     }
 
     private void MoveWristOutForPlayer() {
-        target = 100;
+        target = 60;
         wrist.setTargetPosition(target);
+        while (opModeIsActive()) {
+            controller.setPID(p, i, d);
+            int wristPos = wrist.getCurrentPosition();
+            double pid = controller.calculate(wristPos, target);
+            double ff = Math.cos(Math.toRadians(target / ticks_in_degree)) * f;
+
+            double power = pid + ff;
+
+            wrist.setPower(power);
+
+            telemetry.addData("Pos ", wristPos);
+            telemetry.addData("Target ", target);
+            telemetry.update();
+        }
         sleep(850);
         closeClaw();
         sleep(150);
