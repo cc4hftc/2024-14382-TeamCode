@@ -4,6 +4,7 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.controller.PIDController;
+import com.qualcomm.hardware.dfrobot.HuskyLens;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -25,12 +26,19 @@ public class Auto_Samp extends LinearOpMode {
     private DcMotorEx armMotor, otherArmMotor;
     private DcMotorEx wrist;
     private Servo claw, other_claw;
+    private HuskyLens huskyLens;
     private double targetPosition, otherTargetPosition;
     private double kP = 0.01, kI = 0.00, kD = 0.000, kF = 0.01;
     private double integral = 0, lastError = 0, otherLastError = 0;
     private ElapsedTime timer = new ElapsedTime();
     private boolean pidControlActive = false;
     private int limit = 360;
+    public static int MIN_TARGET_X = 150;
+    public static int MAX_TARGET_X = 160;
+    public static int MIN_TARGET_Y = 70;
+    public static int MAX_TARGET_Y = 85;
+    private int turn = 133;
+    private double YSpeed = 0.25;
 
     @Override
     public void runOpMode() {
@@ -50,20 +58,34 @@ public class Auto_Samp extends LinearOpMode {
         Strafe(50);
         sleep(80);
         MoveToTarget(830);
-        sleep(450);
-        ScoreTurn(110);
+        sleep(400);
+        ScoreTurn(100);
         sleep(250);
         moveArmToLimit();
-        sleep(1000);
-        moveWristForward();
         sleep(500);
+        moveWristForward();
+        sleep(250);
         openClaw();
         sleep(250);
         moveArmToScore();
         sleep(250);
         moveWristBack();
-        sleep(500);
+        sleep(100);
         moveArmDown();
+        sleep(250);
+        Turn(725);
+        sleep(250);
+        MoveToTarget(750);
+        sleep(250);
+        openClawWide();
+        sleep(50);
+        WristSample();
+        sleep(250);
+        MoveBack(80);
+        sleep(250);
+        closeClaw();
+        sleep(250);
+        moveWristBack();
     }
 
     private void moveArmToLimit() {
@@ -73,8 +95,8 @@ public class Auto_Samp extends LinearOpMode {
         armMotor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
         otherArmMotor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
 
-        armMotor.setPower(0.2);
-        otherArmMotor.setPower(0.2);
+        armMotor.setPower(0.3);
+        otherArmMotor.setPower(0.3);
 
 
         while (opModeIsActive() && (armMotor.isBusy() || otherArmMotor.isBusy())) {
@@ -181,6 +203,35 @@ public class Auto_Samp extends LinearOpMode {
         }
     }
 
+    private void MoveBack(int Ticks) {
+        leftFrontDrive.setDirection(DcMotor.Direction.FORWARD);
+        leftBackDrive.setDirection(DcMotor.Direction.FORWARD);
+        rightFrontDrive.setDirection(DcMotor.Direction.REVERSE);
+        rightBackDrive.setDirection(DcMotor.Direction.REVERSE);
+
+        resetDriveEncoder();
+
+        while (opModeIsActive()) {
+            int CurrentTicks = leftBackDrive.getCurrentPosition();
+            int OtherCurrentTicks = rightBackDrive.getCurrentPosition();
+
+            leftBackDrive.setTargetPosition(Ticks);
+            rightBackDrive.setTargetPosition(Ticks);
+            leftFrontDrive.setTargetPosition(0);
+            rightFrontDrive.setTargetPosition(0);
+
+            if (CurrentTicks < Ticks) {
+                setBackMotorPowers(0.5);
+            } else if (CurrentTicks >= Ticks) {
+                stopMotors();
+                break;
+            }
+            telemetry.addData("Current", CurrentTicks);
+            telemetry.addData("Other Current", OtherCurrentTicks);
+            telemetry.update();
+        }
+    }
+
     private void setBackMotorPowers(double power) {
         leftBackDrive.setPower(power);
         rightBackDrive.setPower(power);
@@ -251,6 +302,10 @@ public class Auto_Samp extends LinearOpMode {
             int wristPos = wrist.getCurrentPosition();
             double pid = controller.calculate(wristPos, target);
             double ff = Math.cos(Math.toRadians(target / ticks_in_degree)) * f;
+
+            if (wristPos > target) {
+                break;
+            }
 
             double power = pid + ff;
 
@@ -369,6 +424,51 @@ public class Auto_Samp extends LinearOpMode {
         other_claw.setPosition(0.035);
     }
 
+    private void openClawWide() {
+        claw.setPosition(0.065);
+        other_claw.setPosition(0.015);
+    }
+
+    private void closeClaw() {
+        claw.setPosition(0.2075);
+        other_claw.setPosition(0.1475);
+    }
+
+    private void WristSample() {
+        target = 100;
+        wrist.setTargetPosition(target);
+        while (opModeIsActive()) {
+            controller.setPID(p, i, d);
+            int wristPos = wrist.getCurrentPosition();
+            double pid = controller.calculate(wristPos, target);
+            double ff = Math.cos(Math.toRadians(target / ticks_in_degree)) * f;
+
+            double power = pid + ff;
+
+            if (wristPos > target) {
+                break;
+            }
+
+            wrist.setPower(power);
+
+            telemetry.addData("Pos ", wristPos);
+            telemetry.addData("Target ", target);
+            telemetry.update();
+        }
+    }
+
+
+
+    private void HuskyInit() {
+        if (!huskyLens.knock()) {
+            telemetry.addData("HuskyLens", "Communication problem with " + huskyLens.getDeviceName());
+        } else {
+            huskyLens.initialize();
+            huskyLens.selectAlgorithm(HuskyLens.Algorithm.COLOR_RECOGNITION);
+            telemetry.addData("HuskyLens", "Initialized - press start.");
+        }
+    }
+
     private void initializeHardware() {
         // Initialize motors
         leftFrontDrive = hardwareMap.get(DcMotor.class, "left_front_drive");            // Back
@@ -391,6 +491,8 @@ public class Auto_Samp extends LinearOpMode {
         wrist = hardwareMap.get(DcMotorEx.class, "WristMotor");
         claw = hardwareMap.get(Servo.class, "clawServo");
         other_claw = hardwareMap.get(Servo.class, "other_clawServo");
+
+        huskyLens = hardwareMap.get(HuskyLens.class, "huskylens");
 
         armMotor.setDirection(DcMotorEx.Direction.FORWARD);
         otherArmMotor.setDirection(DcMotorEx.Direction.REVERSE);
