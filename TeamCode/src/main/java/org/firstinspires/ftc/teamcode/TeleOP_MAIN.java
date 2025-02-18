@@ -170,6 +170,20 @@ public class TeleOP_MAIN extends LinearOpMode {
             rightFrontDrive.setPower(rightFrontPower);
             rightBackDrive.setPower(rightBackPower);
 
+            if (gamepad1.dpad_left) {
+                leftFrontDrive.setPower(0.2);
+                rightFrontDrive.setPower(0.2);
+            } else if (gamepad1.dpad_right) {
+                leftFrontDrive.setPower(-0.2);
+                rightFrontDrive.setPower(-0.2);
+            } else if (gamepad1.dpad_up) {
+                leftBackDrive.setPower(0.1);
+                rightBackDrive.setPower(0.1);
+            } else if (gamepad1.dpad_down) {
+                leftBackDrive.setPower(-0.1);
+                rightBackDrive.setPower(-0.1);
+            }
+
             // Arm control (gamepad2)
             double armPower = gamepad2.left_trigger - gamepad2.right_trigger;
 
@@ -195,6 +209,22 @@ public class TeleOP_MAIN extends LinearOpMode {
             } else {
                 // No trigger pressed: PID control
                 pidControl();
+            }
+
+            if (gamepad2.a) {
+                armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                otherArmMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                armMotor.setTargetPosition(240);
+                otherArmMotor.setTargetPosition(240);
+                armMotor.setPower(0.35);
+                otherArmMotor.setPower(0.35);
+                if (armMotor.getCurrentPosition() >= armMotor.getTargetPosition()) {
+                    pidControl();
+                } else if (otherArmMotor.getCurrentPosition() >= otherArmMotor.getTargetPosition()) {
+                    pidControl();
+                } else {
+                    pidControl();
+                }
             }
 
 
@@ -254,7 +284,7 @@ public class TeleOP_MAIN extends LinearOpMode {
             if (gamepad2.right_bumper) {  //Close
                 newClaw = 0.1435;
             } else if (gamepad2.left_bumper) {  //Open
-                newClaw = 0.08;
+                newClaw = 0.07;
             }
 
             //Set the claw servo position

@@ -30,7 +30,7 @@ public class Auto_Spec extends LinearOpMode {
     private double integral = 0, lastError = 0, otherLastError = 0;
     private ElapsedTime timer = new ElapsedTime();
     private boolean pidControlActive = false;
-    private int limit = 180;
+    private int limit = 190;
 
     @Override
     public void runOpMode() {
@@ -41,6 +41,7 @@ public class Auto_Spec extends LinearOpMode {
 
         while (opModeIsActive()) {
             performAutonomousSequence();
+            break;
         }
     }
 
@@ -91,29 +92,33 @@ public class Auto_Spec extends LinearOpMode {
         stopMotors();
         sleep(150);
         moveArmToLimit();
-        sleep(2000);
+        sleep(1250);
         moveWristForward();
         sleep(150);
         deactivatePID();
-        sleep(25);
+        sleep(15);
         openClaw();
-        sleep(150);
+        sleep(125);
         moveWristBack();
-        sleep(250);
+        sleep(200);
         Turn(540);
         resetDriveEncoder();
         sleep(250);
         MoveToTarget(2450);
         sleep(250);
-        Turn(585);
-        MoveToTarget(380);
-        sleep(350);
+        Turn(605);
+        MoveToTarget(290);
+        sleep(250);
         MoveWristOutForPlayer();
-        sleep(500);
+        sleep(750);
+        closeClaw();
+        sleep(150);
+        moveWristBack();
+        /*sleep(500);
         Turn(-1170);
         sleep(500);
         MoveToTarget(1025);
-        sleep(800);
+        sleep(800);*/
     }
 
     private void moveAlongYAxis(double distance) {
@@ -145,22 +150,22 @@ public class Auto_Spec extends LinearOpMode {
         armMotor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
         otherArmMotor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
 
-        armMotor.setPower(0.25);
-        otherArmMotor.setPower(0.25);
+        armMotor.setPower(0.85);
+        otherArmMotor.setPower(0.85);
 
 
         while (opModeIsActive() && (armMotor.isBusy() || otherArmMotor.isBusy())) {
-            if (armMotor.getCurrentPosition() > limit && armMotor.getCurrentPosition() < 195) {
+            if (armMotor.getCurrentPosition() > limit && armMotor.getCurrentPosition() < 205) {
                 break;
-            } else if (armMotor.getCurrentPosition() < limit && armMotor.getCurrentPosition() > 175) {
+            } else if (armMotor.getCurrentPosition() < limit && armMotor.getCurrentPosition() > 185) {
                 break;
             }
 
-            if (otherArmMotor.getCurrentPosition() > limit && otherArmMotor.getCurrentPosition() < 195) {
+            if (otherArmMotor.getCurrentPosition() > limit && otherArmMotor.getCurrentPosition() < 205) {
                 break;
-            } else if (otherArmMotor.getCurrentPosition() < limit && otherArmMotor.getCurrentPosition() > 175) {
+            } /*else if (otherArmMotor.getCurrentPosition() < limit && otherArmMotor.getCurrentPosition() > 175) {
                 break;
-            }
+            }*/
 
             telemetry.addData("Arm1 Target/Pos", "%d/%d", armMotor.getTargetPosition(), armMotor.getCurrentPosition());
             telemetry.addData("Arm2 Target/Pos", "%d/%d", otherArmMotor.getTargetPosition(), otherArmMotor.getCurrentPosition());
@@ -256,7 +261,7 @@ public class Auto_Spec extends LinearOpMode {
     }
 
     private void moveWristForward() {
-        target = 95;
+        target = 90;
         wrist.setTargetPosition(target);
         while (opModeIsActive()) {
             controller.setPID(p, i, d);
@@ -327,6 +332,10 @@ public class Auto_Spec extends LinearOpMode {
             double pid = controller.calculate(wristPos, target);
             double ff = Math.cos(Math.toRadians(target / ticks_in_degree)) * f;
 
+            if (wristPos > target) {
+                break;
+            }
+
             double power = pid + ff;
 
             wrist.setPower(power);
@@ -335,10 +344,6 @@ public class Auto_Spec extends LinearOpMode {
             telemetry.addData("Target ", target);
             telemetry.update();
         }
-        sleep(850);
-        closeClaw();
-        sleep(150);
-        moveWristBack();
     }
 
     private void openClaw() {
