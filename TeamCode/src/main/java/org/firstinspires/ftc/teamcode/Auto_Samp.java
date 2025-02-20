@@ -73,19 +73,20 @@ public class Auto_Samp extends LinearOpMode {
         sleep(100);
         moveArmDown();
         sleep(250);
-        Turn(725);
-        sleep(250);
+        Turn(740);
+        sleep(200);
         MoveToTarget(750);
+        /*sleep(250);
+        Turn(200);
+        MoveToTarget(200);
+        sleep(150);
+        ReverseTurn(300);
         sleep(250);
-        openClawWide();
-        sleep(50);
-        WristSample();
+        MoveToTarget(200);
+        Turn(250);
+        MoveToTarget(250);
         sleep(250);
-        MoveBack(80);
-        sleep(250);
-        closeClaw();
-        sleep(250);
-        moveWristBack();
+        moveWristForAscent();*/
     }
 
     private void moveArmToLimit() {
@@ -317,6 +318,29 @@ public class Auto_Samp extends LinearOpMode {
         }
     }
 
+    private void moveWristForAscent() {
+        target = 90;
+        wrist.setTargetPosition(target);
+        while (opModeIsActive()) {
+            controller.setPID(p, i, d);
+            int wristPos = wrist.getCurrentPosition();
+            double pid = controller.calculate(wristPos, target);
+            double ff = Math.cos(Math.toRadians(target / ticks_in_degree)) * f;
+
+            if (wristPos > target) {
+                break;
+            }
+
+            double power = pid + ff;
+
+            wrist.setPower(power);
+
+            telemetry.addData("Pos ", wristPos);
+            telemetry.addData("Target ", target);
+            telemetry.update();
+        }
+    }
+
     private void moveWristBack() {
         target = 0;
         wrist.setTargetPosition(target);
@@ -415,6 +439,35 @@ public class Auto_Samp extends LinearOpMode {
             }
             telemetry.addData("Current", newCurrentTicks);
             telemetry.addData("Other Current", newOtherCurrentTicks);
+            telemetry.update();
+        }
+    }
+
+    private void ReverseTurn(int Ticks) {
+        leftFrontDrive.setDirection(DcMotor.Direction.FORWARD);
+        leftBackDrive.setDirection(DcMotor.Direction.FORWARD);
+        rightFrontDrive.setDirection(DcMotor.Direction.FORWARD);
+        rightBackDrive.setDirection(DcMotor.Direction.FORWARD);
+
+        resetDriveEncoder();
+
+        while (opModeIsActive()) {
+            int newNewCurrentTicks = leftBackDrive.getCurrentPosition();
+            int newNewOtherCurrentTicks = rightBackDrive.getCurrentPosition();
+
+            leftFrontDrive.setTargetPosition(Ticks);
+            leftBackDrive.setTargetPosition(Ticks);
+            rightFrontDrive.setTargetPosition(Ticks);
+            rightBackDrive.setTargetPosition(Ticks);
+
+            if (newNewCurrentTicks < Ticks) {
+                TurnMotors(0.3, true);
+            } else if (newNewCurrentTicks >= Ticks) {
+                stopMotors();
+                break;
+            }
+            telemetry.addData("Current", newNewCurrentTicks);
+            telemetry.addData("Other Current", newNewOtherCurrentTicks);
             telemetry.update();
         }
     }

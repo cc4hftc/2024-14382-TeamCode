@@ -30,7 +30,7 @@ public class Auto_Spec extends LinearOpMode {
     private double integral = 0, lastError = 0, otherLastError = 0;
     private ElapsedTime timer = new ElapsedTime();
     private boolean pidControlActive = false;
-    private int limit = 190;
+    private int limit = 180;
 
     @Override
     public void runOpMode() {
@@ -88,11 +88,11 @@ public class Auto_Spec extends LinearOpMode {
     private void performAutonomousSequence() {
         //moveAlongYAxis(0.685);
         resetDriveEncoder();
-        MoveToTarget(950);
+        MoveToTarget(850);
         stopMotors();
-        sleep(150);
+        sleep(125);
         moveArmToLimit();
-        sleep(1250);
+        sleep(1000);
         moveWristForward();
         sleep(150);
         deactivatePID();
@@ -104,13 +104,11 @@ public class Auto_Spec extends LinearOpMode {
         Turn(540);
         resetDriveEncoder();
         sleep(250);
-        MoveToTarget(2450);
+        MoveToTarget(1750);
         sleep(250);
         Turn(605);
-        MoveToTarget(290);
+        MoveToTarget(850);
         sleep(250);
-        MoveWristOutForPlayer();
-        sleep(750);
         closeClaw();
         sleep(150);
         moveWristBack();

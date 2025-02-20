@@ -40,7 +40,6 @@ public class TeleOP_MAIN extends LinearOpMode {
     DcMotorEx otherArmMotor = null;
     Servo claw = null;
     Servo other_claw = null;
-    DcMotor winch = null;
 
     // PID control constants for the arm
     private double otherTargetPosition;
@@ -99,7 +98,6 @@ public class TeleOP_MAIN extends LinearOpMode {
         claw = hardwareMap.get(Servo.class, "clawServo");
         other_claw = hardwareMap.get(Servo.class, "other_clawServo");
         wrist = hardwareMap.get(DcMotor.class, "WristMotor");
-        winch = hardwareMap.get(DcMotor.class, "winch");
 
         // Set motor directions
         leftFrontDrive.setDirection(DcMotor.Direction.REVERSE);
@@ -108,7 +106,6 @@ public class TeleOP_MAIN extends LinearOpMode {
         otherArmMotor.setDirection(DcMotorEx.Direction.REVERSE);
         claw.setDirection(Servo.Direction.FORWARD);
         other_claw.setDirection(Servo.Direction.REVERSE);
-        winch.setDirection(DcMotor.Direction.FORWARD);
         wrist.setDirection(DcMotor.Direction.FORWARD);
 
         // Set motor modes
@@ -230,13 +227,6 @@ public class TeleOP_MAIN extends LinearOpMode {
 
             double tick = otherArmMotor.getCurrentPosition();
 
-            /*if (gamepad1.a) {
-                winch.setPower(0.5);
-            } else if (gamepad1.b) {
-                winch.setPower(-0.5);
-            } else {
-                winch.setPower(0);
-            }*/
 
             if (gamepad1.y) {
                 armMotor.setPower(0);
