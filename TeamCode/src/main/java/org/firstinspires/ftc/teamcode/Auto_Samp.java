@@ -32,7 +32,7 @@ public class Auto_Samp extends LinearOpMode {
     private double integral = 0, lastError = 0, otherLastError = 0;
     private ElapsedTime timer = new ElapsedTime();
     private boolean pidControlActive = false;
-    private int limit = 360;
+    private int limit = 380;
     public static int MIN_TARGET_X = 150;
     public static int MAX_TARGET_X = 160;
     public static int MIN_TARGET_Y = 70;
@@ -58,11 +58,13 @@ public class Auto_Samp extends LinearOpMode {
         Strafe(50);
         sleep(80);
         MoveToTarget(830);
-        sleep(400);
+        sleep(300);
         ScoreTurn(100);
-        sleep(250);
+        sleep(200);
         moveArmToLimit();
-        sleep(500);
+        sleep(80);
+        MoveToTarget(83);
+        sleep(400);
         moveWristForward();
         sleep(250);
         openClaw();
@@ -73,9 +75,10 @@ public class Auto_Samp extends LinearOpMode {
         sleep(100);
         moveArmDown();
         sleep(250);
-        Turn(740);
+        Turn(780);
         sleep(200);
-        MoveToTarget(750);
+        MoveToTarget(670);
+        Strafe(290);
         /*sleep(250);
         Turn(200);
         MoveToTarget(200);
@@ -96,8 +99,8 @@ public class Auto_Samp extends LinearOpMode {
         armMotor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
         otherArmMotor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
 
-        armMotor.setPower(0.3);
-        otherArmMotor.setPower(0.3);
+        armMotor.setPower(0.6);
+        otherArmMotor.setPower(0.6);
 
 
         while (opModeIsActive() && (armMotor.isBusy() || otherArmMotor.isBusy())) {
